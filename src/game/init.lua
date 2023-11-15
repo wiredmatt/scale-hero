@@ -1,8 +1,9 @@
 _G.TILE_SIZE = 16
-_G.WIDTH = 1366
+_G.WIDTH = 768
 _G.HEIGHT = 768
 _G.SCREEN_WIDTH = 1366
 _G.SCREEN_HEIGHT = 768
+_G.SCALE = 20
 
 
 local Atlas = require "src.tool.atlas"
@@ -23,7 +24,7 @@ function love.load()
 
   love.graphics.setDefaultFilter("nearest", "nearest")
   cam = Camera.new()
-  cam.scale = 15
+  cam.scale = _G.SCALE
 
   Atlas.Export() -- generates assets/main_atlas.xml
   Atlas.Load()   -- loads assets/main_atlas.xml into memory, `main_atlas` is now available
@@ -50,7 +51,6 @@ function love.draw()
       love.graphics.setBlendMode('alpha')
     Center:finish()
   cam:detach()
-
   ---@format enable
 end
 
@@ -60,15 +60,19 @@ end
 
 function love.keypressed(k)
   if k == "a" then
-    cam.scale = cam.scale + 1
+    _G.SCALE = _G.SCALE + 1
+    cam.scale = _G.SCALE
   else
     if cam.scale > 3 then
-      cam.scale = cam.scale - 1
+      _G.SCALE = _G.SCALE - 1
+      cam.scale = _G.SCALE
       -- _G.WIDTH = _G.WIDTH + _G.TILE_SIZE
       -- _G.HEIGHT = _G.HEIGHT + _G.TILE_SIZE
       -- level:next() ; 1 = standard terrain ; 2 = terrain with obstacles ; 3 = terrain with environmental stuff...
     end
   end
+
+  print(cam.scale)
 end
 
 function love.update(dt)
