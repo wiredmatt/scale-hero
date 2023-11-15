@@ -4,23 +4,13 @@
 	(https://github.com/YoungNeer/iffy)
 ]]
 
----@class iffy
 local iffy = {
-  ---@type table<string, love.Image>
-  images = {},       --the images that form the spritesheets
-  ---@type table<string, table<string, love.Quad>>
-  spritesheets = {}, --the sprites themselves. [image_name][sprite_name] = Quad
-  ---@type table<string, table<string, number>>
-  cache = {},        --to increase performance and provide easy access to sprites
-  ---@type table<string, table<string, number>>
-  tilesets = {},     --contains only the tilewidth and tileheight information
-  ---@type table<string, table<string, number>>
-  tilemaps = {},     --the tilemaps that were created plus the width and height
-  ---@type table<string, table<string, number>>
-  spritedata = {},   --the data of sprites created so they could be exported
-  center = function(scr_w, scr_h, scale, tw, th)
-
-  end
+  images = {},    --the images that form the spritesheets
+  spritesheets = {}, --the sprites themselves
+  cache = {},     --to increase performance and provide easy access to sprites
+  tilesets = {},  --contains only the tilewidth and tileheight information
+  tilemaps = {},  --the tilemaps that were created plus the width and height
+  spritedata = {}, --the data of sprites created so they could be exported
 }
 
 local function fileExists(url)
@@ -37,14 +27,9 @@ local function lastIndexOf(str, char)
 end
 
 --removes the path and only gets the filename
-local function removePath(filename)
+function removePath(filename)
   local pos = 1
   local i = string.find(filename, '[\\/]', pos)
-
-  if i == nil then
-    error("Iffy Error! The path '" .. filename .. '[\\/]' .. pos .. "' doesn't exist")
-  end
-
   pos = i
   while i do
     i = string.find(filename, '[\\/]', pos)
@@ -88,33 +73,31 @@ local function getmetafile(url)
   error("Iffy Error! metafile doesn't exist for " .. url)
 end
 
---- Makes a brand new sprite (image-quad) from given parameters.
----
---- Before calling this function make sure you map iname with the image
---- using newImage otherwise you won't be able to render the sprite with iffy
---- @param iname string The name of the Image (needed to namespace the sprite)
---- @param name string The name of the Sprite (needed to locate the sprite)
---- @param x number The position of the sprite in the atlas
---- @param y number The width of the sprite
---- @param width number The width of the sprite
---- @param height number Not needed if a reference (not url) to the image is provided
---- @param sw ?number
---- @param sh ?number
---- @return love.Quad
+--[[
+	Makes a brand new sprite (image-quad) from given parameters.
+	Arguments
+		iname  : The name of the Image (needed to namespace the sprite)
+		name   : The name of the Sprite (needed to locate the sprite)
+		x,y    : The position of the sprite in the atlas
+		width  : The width of the sprite
+		height : The height of the sprite
+		sw,sh  : Not needed if a reference (not url) to the image is provided
+	Returns a Quad
+	[Before calling this function makes sure you map iname with the image
+	using newImage otherwise you couldn't render the sprite with iffy]
+]]
 function iffy.newSprite(iname, name, x, y, width, height, sw, sh)
-  local image = iffy.images[iname]
-
-  if not sw and not image then
+  if not sw and not iffy.images[iname] then
     error("Iffy Error! " ..
       "You must provide the size of the image in the last parameter " ..
       "in the function 'newSprite'"
     )
   end
-  if not sw then
-    sw = image:getWidth()
+  if iffy.images[iname] and not sw then
+    sw = iffy.images[iname]
   end
-  if not sh then
-    sh = image:getHeight()
+  if not sh then -- user provided an image?	
+    sw, sh = sw:getDimensions()
   end
   if not iffy.spritesheets[iname] then iffy.spritesheets[iname] = {} end
   if not iffy.spritedata[iname] then iffy.spritedata[iname] = {} end
@@ -124,16 +107,18 @@ function iffy.newSprite(iname, name, x, y, width, height, sw, sh)
   return iffy.spritesheets[iname][name]
 end
 
---- Maps given image name with the provided image.
---- @param iname string The name of the image
---- @param url string? The url or reference to the image
---- @overload fun(iname: string, url?: love.Image)
+--[[
+	Maps given image name with the provided image.
+	Arguments:-
+		iname  - The name of the image
+		url    - The url or reference to the image
+]]
 function iffy.newImage(iname, url)
   if not url then
     url = iname
     iname = removeExtension(url)
   end
-  iffy.images[iname] = type(url) == 'string' and love.graphics.newImage(url) or url --[[@as love.Image]]
+  iffy.images[iname] = type(url) == 'string' and love.graphics.newImage(url) or url
 end
 
 --[[
@@ -179,17 +164,13 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
 
   sw, sh = sw or iffy.images[name]:getWidth(), sh or iffy.images[name]:getHeight()
 
-  local i, sname, x, y, width, height = 1, nil, nil, nil, nil, nil
+  local i, sname, x, y, width, height = 1
 
   if getExtension(metafile) == "xml" then
     --READ XML FILE ('i' means the line number)
     for line in love.filesystem.lines(metafile) do
       if i > 1 and line:match('%a') and not line:match('<!') and line ~= "</TextureAtlas>" then
         _, sname = string.match(line, "name=([\"'])(.-)%1")
-
-        if sname == nil then
-          error("Iffy Error!! The metafile is not in the correct format!!")
-        end
 
         assert(not t[sname],
           "Iffy Error!! Duplicate Sprite Names (" .. sname .. ") for " .. name
@@ -212,7 +193,7 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
         data = trim(data)
         if data:sub(1, 1) == "#" then break end -- it's a comment!
         if i == 1 then
-          data = data:gsub('["\']', '')         --remove the parentheses
+          data = data:gsub('["\']', '')  --remove the parentheses
           sname = data
           assert(not t[sname],
             "Iffy Error!! Duplicate Sprite Names for " .. url
@@ -224,7 +205,7 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
         i = i + 1
       end
       --If a valid line was read
-      if sname ~= nil and type(t[sname]) == 'table' then
+      if type(t[sname]) == 'table' then
         x, y, width, height = unpack(t[sname])
         t[sname] = love.graphics.newQuad(x, y, width, height, sw, sh)
       end
@@ -307,7 +288,7 @@ function iffy.newTilemap(name, url)
     assert(fileExists(url), "Iffy Error! The provided file '" .. url .. "' doesn't exist")
     for line in love.filesystem.lines(url) do
       local row = {}
-      local i = 1
+      i = 1
       for tile_no in line:gmatch("[^,]+") do
         row[#row + 1] = tonumber(tile_no)
         i = i + 1
@@ -395,7 +376,6 @@ function iffy.drawSprite(sname, ...)
     iffy.cache[sname] = {}
     iffy.cache[sname][1], iffy.cache[sname][2] = iffy.getSprite(sname)
   end
-
   love.graphics.draw(iffy.cache[sname][1], iffy.cache[sname][2], ...)
 end
 
@@ -436,10 +416,6 @@ function iffy.exportCSV(iname, path, filename)
   end
   local file = io.open(path .. filename, 'w')
 
-  if file == nil then
-    error("Iffy Error! Couldn't open file '" .. path .. filename .. "'")
-  end
-
   file:write(string.format("#This SpriteData is for '%s'\n\n", iname))
   for i = 1, #iffy.spritedata[iname] do
     file:write('\t', table.concat(iffy.spritedata[iname][i], ','), '\n')
@@ -459,10 +435,6 @@ function iffy.exportXML(iname, path, filename)
   end
   local file = io.open(path .. filename, 'w')
 
-  if file == nil then
-    error("Iffy Error! Couldn't open file '" .. path .. filename .. "'")
-  end
-
   local sname, x, y, width, height
 
   file:write(string.format('<TextureAtlas imageName="%s">\n', iname))
@@ -479,9 +451,16 @@ function iffy.exportXML(iname, path, filename)
   file:close()
 end
 
-iffy.newAtlas = iffy.newAtlas
-iffy.newTileMap = iffy.newTilemap
-iffy.newTileSet = iffy.newTileset
+--[[
+	Just making some aliases here, cause different people like different names
+	And I don't want to punish them by using the word that they don't like.
+	So here are your options (ofcourse you could make your ones as well)
+]]
+   --
+iffy.newSpritesheet = iffy.newAtlas
+iffy.newSpriteSheet = iffy.newAtlas
+iffy.newTileMap     = iffy.newTilemap
+iffy.newTileSet     = iffy.newTileset
 
 
 return iffy

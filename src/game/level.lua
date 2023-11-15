@@ -4,7 +4,12 @@ local pprint = require "lib.pprint"
 
 local level = {
   ---@type table<{s: string, x: number,y: number, r: number, sx: number, sy: number}>
-  data = {}
+  data = {},
+  current_active_region_q = {
+    ---@type love.Quad
+    q = nil,
+    on_scale = _G.SCALE
+  }
 }
 
 function level:setup()
@@ -29,22 +34,22 @@ function level:setup()
   pprint(#self.data)
 end
 
-function level:getCenterTile()
-  local x = (math.floor(_G.WIDTH / 2 / _G.TILE_SIZE) * _G.TILE_SIZE) - (_G.TILE_SIZE / 2)
-  local y = (math.floor(_G.HEIGHT / 2 / _G.TILE_SIZE) * _G.TILE_SIZE) - (_G.TILE_SIZE / 2)
-  return x, y
-end
-
 function level:getActiveRegion()
-  local cx, cy = self:getCenterTile()
+  if self.current_active_region_q.on_scale == _G.SCALE and self.current_active_region_q.q then
+    return self.current_active_region_q.q
+  end
 
-  local x = cx - cx / _G.SCALE + _G.TILE_SIZE / 2 - _G.TILE_SIZE
-  local y = cy - cy / _G.SCALE + _G.TILE_SIZE / 2 - 1
+  local x, y = 0, 0
 
-  local w = (_G.WIDTH / _G.SCALE + _G.TILE_SIZE * 2) - 1
-  local h = (_G.HEIGHT / _G.SCALE + _G.TILE_SIZE * 2) - (_G.TILE_SIZE * 2) + 1
+  local w = _G.WIDTH / _G.SCALE
+  local h = _G.HEIGHT / _G.SCALE
 
-  local q = love.graphics.newQuad(x, y, w, h, 1, 1)
+  local q = love.graphics.newQuad(x, y, w, h, _G.WIDTH, _G.HEIGHT)
+
+  self.current_active_region_q = {
+    q = q,
+    on_scale = _G.SCALE
+  }
 
   return q
 end
@@ -62,50 +67,14 @@ function level:draw()
 
     Atlas.lib.drawSprite(v.s, v.x, v.y, v.r)
 
-
-    -- Atlas.lib.drawSprite(v.s, v.x, v.y, v.r)
+    love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
   end
 
-  -- local x, y, w, h = self:getActiveRegion()
+  local x, y, w, h = active_region_quad:getViewport()
 
-  -- love.graphics.rectangle("line", x, y, w, h)
-
-
-  -- local cx, cy = self:getCenterTile()
-  -- love.graphics.rectangle("line", cx, cy, _G.TILE_SIZE, _G.TILE_SIZE)
-
-
-  -- local x, y, w, h = self:getActiveRegion()
-  -- love.graphics.rectangle("line", x, y, w, h)
-
-  -- love.graphics.rectangle("line", cx, cy, _G.TILE_SIZE, _G.TILE_SIZE)
-
-
-
-  --center tile
-  -- love.graphics.rectangle("line", cx, cy, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- love.graphics.rectangle("line", cx, cy - _G.TILE_SIZE, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- love.graphics.rectangle("line", cx, cy, _G.TILE_SIZE + _G.TILE_SIZE, _G.TILE_SIZE)
-
-  -- 4 tiles right to center
-  -- for i = 1, 4 do
-  --   love.graphics.rectangle("line", cx + i * _G.TILE_SIZE, cy, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- end
-
-  -- -- 4 tiles left to center
-  -- for i = 1, 4 do
-  --   love.graphics.rectangle("line", cx - i * _G.TILE_SIZE, cy, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- end
-
-  -- for i = 1, 4 do
-  --   love.graphics.rectangle("line", cx - i * _G.TILE_SIZE, cy - _G.TILE_SIZE, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- end
-
-
-  -- for i = 1, 4 do
-  --   love.graphics.rectangle("line", cx - i * _G.TILE_SIZE, cy + _G.TILE_SIZE, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- end
+  love.graphics.setColor(1, 0.2, 0.8, 1)
+  love.graphics.rectangle("line", x, y, w, h)
 end
 
 return level
