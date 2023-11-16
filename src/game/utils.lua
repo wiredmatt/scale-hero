@@ -58,4 +58,4 @@ setmetatable(utils, {
   end
 })
 
-return utils()
+return utils
