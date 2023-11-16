@@ -15,7 +15,7 @@ local canvas = {}
 
 function love.load()
   love.window.setMode(_G.SCREEN_WIDTH, _G.SCREEN_HEIGHT,
-    { resizable = false, vsync = true, fullscreen = true })
+    { resizable = false, vsync = true, fullscreen = false })
 
   love.graphics.setDefaultFilter("nearest", "nearest")
 
@@ -36,14 +36,14 @@ function love.draw()
     level:draw()
   love.graphics.setCanvas()
 
-    Center:start()
-      love.graphics.setColor(1, 1, 1, 1)
-      love.graphics.setBlendMode('alpha', 'premultiplied')
-      love.graphics.draw(canvas, 0, 0, 0, _G.SCALE_X, _G.SCALE_Y)
-      love.graphics.setBlendMode('alpha')
-    Center:finish()
+  Center:start()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setBlendMode('alpha', 'premultiplied')
+    love.graphics.draw(canvas, 0, 0, 0, _G.SCALE_X, _G.SCALE_Y)
+    love.graphics.setBlendMode('alpha')
+  Center:finish()
 
-    love.graphics.print(tostring(_G.SCALE_X),20,20)
+    -- love.graphics.print(tostring(_G.SCALE_X),20,20)
 
   ---@format enable
 end

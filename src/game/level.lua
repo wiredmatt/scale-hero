@@ -44,7 +44,7 @@ function level:setup()
 end
 
 function level:getActiveRegion()
-  if self.current_active_region_q.on_scale == { x = _G.SCALE_X, y = _G.SCALE_Y } and self.current_active_region_q.q then
+  if self.current_active_region_q.on_scale.x == _G.SCALE_X and self.current_active_region_q.on_scale.x == _G.SCALE_Y and self.current_active_region_q.q ~= nil then
     return self.current_active_region_q.q
   end
 
@@ -71,6 +71,10 @@ function level:update(dt)
 end
 
 function level:setupSpriteBatch()
+  if self.current_active_region_q.q == self:getActiveRegion() then
+    return
+  end
+
   for _, b in pairs(self.batches) do
     b.sb:clear()
   end
@@ -89,8 +93,6 @@ function level:setupSpriteBatch()
 end
 
 function level:draw()
-  local active_region_quad = self:getActiveRegion()
-
   for _, name in pairs(Atlas.names) do
     local b = self.batches[name]
     -- print("drawing", name, b.sb:getCount())
@@ -113,10 +115,10 @@ function level:draw()
   --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
   -- end
 
-  -- local x, y, w, h = active_region_quad:getViewport()
-
-  -- love.graphics.setColor(1, 0.2, 0.8, 1)
-  -- love.graphics.rectangle("line", x, y, w, h)
+  local active_region_quad = self:getActiveRegion()
+  local x, y, w, h = active_region_quad:getViewport()
+  love.graphics.setColor(1, 0.2, 0.8, 1)
+  love.graphics.rectangle("line", x, y, w, h)
 end
 
 return level
