@@ -14,11 +14,14 @@ local level = {
     }
   },
   ---@type table<string, {sb: love.SpriteBatch, quad: love.Quad}>
-  batches = {}
+  batches = {},
+  ---@type {x:number, y:number}[]
+  selectable_tiles = {}
 }
 
 function level:setup()
   self.data = {}
+  local vertices = {}
 
   for _, v in ipairs(Atlas.names) do
     local img, q = Atlas.lib.getSprite(v)
@@ -75,6 +78,8 @@ function level:setupSpriteBatch()
     return
   end
 
+  local __selectable_tiles = {}
+
   for _, b in pairs(self.batches) do
     b.sb:clear()
   end
@@ -84,12 +89,15 @@ function level:setupSpriteBatch()
 
     if utils.isInQuad(self:getActiveRegion(), v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
       b.sb:setColor(1, 1, 1, 1)
+      table.insert(__selectable_tiles, { x = v.x, y = v.y })
     else
       b.sb:setColor(1, 1, 1, 0.25)
     end
 
     b.sb:add(b.quad, v.x, v.y)
   end
+
+  self.selectable_tiles = __selectable_tiles
 end
 
 function level:draw()
@@ -100,25 +108,43 @@ function level:draw()
     love.graphics.draw(b.sb)
   end
 
-  -- for _, v in ipairs(self.data) do
-  --   local style = "line"
+  local active_region_quad = self:getActiveRegion()
 
-  --   if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
-  --     love.graphics.setColor(1, 1, 1, 1)
-  --     style = "line"
-  --   else
-  --     -- darken the tile
-  --     love.graphics.setColor(0, 0, 0, 0.75)
-  --     style = "fill"
-  --   end
+  -- for _, v in ipairs(self.selectable_tiles) do
+  --   local style = "line"
+  --   love.graphics.setColor(1, 1, 1, 1)
+
+  --   -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
+  --   --   style = "line"
+  --   -- else
+  --   --   -- darken the tile
+  --   --   love.graphics.setColor(0, 0, 0, 0.75)
+  --   --   style = "fill"
+  --   -- end
 
   --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
   -- end
 
-  local active_region_quad = self:getActiveRegion()
   local x, y, w, h = active_region_quad:getViewport()
   love.graphics.setColor(1, 0.2, 0.8, 1)
   love.graphics.rectangle("line", x, y, w, h)
+
+  local mouseX, mouseY = love.mouse.getPosition()
+
+  local correctedMouseX = (mouseX / _G.SCALE_X)
+  local correctexMouseY = (mouseY / _G.SCALE_Y)
+
+  -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
+
+  for _, v in ipairs(self.selectable_tiles) do
+    local tileQuad = love.graphics.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
+
+    if utils.isInQuad(tileQuad, correctedMouseX, correctexMouseY, 0.25, 0.25) then
+      love.graphics.setColor(1, 1, 1, 1)
+      love.graphics.rectangle("line", v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
+      break
+    end
+  end
 end
 
 return level
