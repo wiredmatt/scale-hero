@@ -1,6 +1,6 @@
 local Atlas = require "src.tool.atlas"
 local utils = require "src.game.utils"
-local Tile = require "src.game.ent.tile"
+local Tile = require "src.game.ent.Tile"
 
 local level = {
   ---@type Tile[]
@@ -17,10 +17,8 @@ local level = {
       y = _G.SCALE_Y
     }
   }, -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
-  ---@type table<string, table>
-  hero_party = {
-    ["knight"] = {}
-  },
+  ---@type table<string, PlayableCharacter>
+  hero_party = {},
   enemies = {}
 }
 
@@ -41,9 +39,9 @@ function level:setup()
   for i = 0, _G.WIDTH, _G.TILE_SIZE do
     for j = 0, _G.HEIGHT, _G.TILE_SIZE do
       if love.math.random(1, 10) < 3 then
-        table.insert(self.ground_tiles, Tile("ground_base_2", i, j, _G.TILE_SIZE, _G.TILE_SIZE))
+        table.insert(self.ground_tiles, Tile("ground_base_2", i, j, TILE_TYPES.ground))
       else
-        table.insert(self.ground_tiles, Tile("ground_base_1", i, j, _G.TILE_SIZE, _G.TILE_SIZE))
+        table.insert(self.ground_tiles, Tile("ground_base_1", i, j, TILE_TYPES.ground))
       end
     end
   end
