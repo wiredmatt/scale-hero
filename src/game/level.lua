@@ -1,13 +1,14 @@
 local Atlas = require "src.tool.atlas"
 local utils = require "src.game.utils"
+local Tile = require "src.game.ent.tile"
 
 local level = {
-  ---@type {s: string, x: number,y: number, r: number, sx: number, sy: number}[]
-  ground_tiles = {},
-  ---@type {x:number, y:number}[]
-  selectable_tiles = {}, -- tiles that are in the active region
+  ---@type Tile[]
+  ground_tiles = {},     -- all ground tiles
+  ---@type Tile[]
+  selectable_tiles = {}, -- ground tiles that are in the active region
   ---@type table<string, {sb: love.SpriteBatch, quad: love.Quad}>
-  batches = {},          -- spritebatches for each ground tile, improves performance vastly.
+  batches = {},          -- spritebatches for each type of tile, improves performance vastly.
   current_active_region_q = {
     ---@type love.Quad
     q = nil,
@@ -15,7 +16,12 @@ local level = {
       x = _G.SCALE_X,
       y = _G.SCALE_Y
     }
-  } -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
+  }, -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
+  ---@type table<string, table>
+  hero_party = {
+    ["knight"] = {}
+  },
+  enemies = {}
 }
 
 function level:setup()
@@ -35,9 +41,9 @@ function level:setup()
   for i = 0, _G.WIDTH, _G.TILE_SIZE do
     for j = 0, _G.HEIGHT, _G.TILE_SIZE do
       if love.math.random(1, 10) < 3 then
-        table.insert(self.ground_tiles, { x = i, y = j, s = "ground_base_2", r = 0, sx = 1, sy = 1 })
+        table.insert(self.ground_tiles, Tile("ground_base_2", i, j, _G.TILE_SIZE, _G.TILE_SIZE))
       else
-        table.insert(self.ground_tiles, { x = i, y = j, s = "ground_base_1", r = 0, sx = 1, sy = 1 })
+        table.insert(self.ground_tiles, Tile("ground_base_1", i, j, _G.TILE_SIZE, _G.TILE_SIZE))
       end
     end
   end
@@ -78,6 +84,7 @@ function level:setupSpriteBatch()
     return
   end
 
+  ---@type Tile[]
   local __selectable_tiles = {}
 
   for _, b in pairs(self.batches) do
@@ -85,11 +92,11 @@ function level:setupSpriteBatch()
   end
 
   for _, v in ipairs(self.ground_tiles) do
-    local b = self.batches[v.s]
+    local b = self.batches[v.sprite]
 
     if utils.isInQuad(self:getActiveRegion(), v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
       b.sb:setColor(1, 1, 1, 1)
-      table.insert(__selectable_tiles, { x = v.x, y = v.y })
+      table.insert(__selectable_tiles, v)
     else
       b.sb:setColor(1, 1, 1, 0.25)
     end

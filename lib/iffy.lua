@@ -2,22 +2,30 @@
 	Iffy  : The SpriteSheet and Tileset helper library (handles Tilemaps as well)
 	Author: Neer
 	(https://github.com/YoungNeer/iffy)
+
+  Copyright (c) 2019, YoungNeer
+  Copyright (c) 2023, wiredmatt
+
+  This module is free software; you can redistribute it and/or modify it under
+  the terms of the MIT license. See LICENSE for details.
 ]]
 
 local iffy = {
-  images = {},    --the images that form the spritesheets
+  images = {},       --the images that form the spritesheets
   spritesheets = {}, --the sprites themselves
-  cache = {},     --to increase performance and provide easy access to sprites
-  tilesets = {},  --contains only the tilewidth and tileheight information
-  tilemaps = {},  --the tilemaps that were created plus the width and height
-  spritedata = {}, --the data of sprites created so they could be exported
+  cache = {},        --to increase performance and provide easy access to sprites
+  tilesets = {},     --contains only the tilewidth and tileheight information
+  tilemaps = {},     --the tilemaps that were created plus the width and height
+  spritedata = {},   --the data of sprites created so they could be exported
 }
 
+--- @param url string
 local function fileExists(url)
   return love.filesystem.getInfo(url) and
       love.filesystem.getInfo(url).type == "file"
 end
 
+--- @param s string
 local function trim(s)
   return s:gsub("^%s*(.-)%s*$", "%1")
 end
@@ -26,10 +34,16 @@ local function lastIndexOf(str, char)
   for i = str:len(), 1, -1 do if str:sub(i, i) == char then return i end end
 end
 
---removes the path and only gets the filename
-function removePath(filename)
+--- removes the path and only gets the filename
+--- @param filename string
+local function removePath(filename)
   local pos = 1
   local i = string.find(filename, '[\\/]', pos)
+
+  if not i then
+    error("Iffy Error! The filename doesn't contain any path")
+  end
+
   pos = i
   while i do
     i = string.find(filename, '[\\/]', pos)
@@ -44,7 +58,9 @@ function removePath(filename)
   return filename
 end
 
---remove extension from a file as well as remove the path
+--- remove extension from a file as well as remove the path
+--- @param filename string
+--- @param dontremovepath boolean
 local function removeExtension(filename, dontremovepath)
   if not dontremovepath then filename = removePath(filename) end
   return filename:sub(1, lastIndexOf(filename, ".") - 1)
@@ -62,7 +78,9 @@ local metafileFormats = {
   "", ".txt", ".xml", ".csv"
 }
 
--- takes asset url and returns corresponding meta file url (if it exists)
+--- takes asset url and returns corresponding meta file url (if it exists)
+--- @param url string
+--- @return string
 local function getmetafile(url)
   for i = 1, #metafileFormats do
     local f = removeExtension(url, true) .. metafileFormats[i]
@@ -193,7 +211,7 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
         data = trim(data)
         if data:sub(1, 1) == "#" then break end -- it's a comment!
         if i == 1 then
-          data = data:gsub('["\']', '')  --remove the parentheses
+          data = data:gsub('["\']', '')         --remove the parentheses
           sname = data
           assert(not t[sname],
             "Iffy Error!! Duplicate Sprite Names for " .. url
@@ -456,7 +474,7 @@ end
 	And I don't want to punish them by using the word that they don't like.
 	So here are your options (ofcourse you could make your ones as well)
 ]]
-   --
+--
 iffy.newSpritesheet = iffy.newAtlas
 iffy.newSpriteSheet = iffy.newAtlas
 iffy.newTileMap     = iffy.newTilemap
