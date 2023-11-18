@@ -54,10 +54,7 @@ function level:getActiveRegion()
     return self.current_active_region_q.q
   end
 
-  local x, y = 0, 0
-
-  local w = _G.WIDTH / _G.SCALE_X
-  local h = _G.HEIGHT / _G.SCALE_Y
+  local x, y, w, h = 0, 0, _G.WIDTH / _G.SCALE_X, _G.HEIGHT / _G.SCALE_Y
 
   local q = lg.newQuad(x, y, w, h, _G.WIDTH, _G.HEIGHT)
 
@@ -131,14 +128,13 @@ function level:draw()
   --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
   -- end
 
+  -- debug active viewport
   local x, y, w, h = active_region_quad:getViewport()
   lg.setColor(1, 0.2, 0.8, 1)
   lg.rectangle("line", x, y, w, h)
 
   local mouseX, mouseY = love.mouse.getPosition()
-
-  local correctedMouseX = (mouseX / _G.SCALE_X)
-  local correctexMouseY = (mouseY / _G.SCALE_Y)
+  local correctedMouseX, correctedMouseY = (mouseX / _G.SCALE_X), (mouseY / _G.SCALE_Y)
 
   -- debug mouse position
   -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
@@ -146,7 +142,7 @@ function level:draw()
   for _, v in ipairs(self.selectable_tiles) do
     local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, correctedMouseX, correctexMouseY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, correctedMouseX, correctedMouseY, 0.25, 0.25) then
       lg.setColor(1, 1, 1, 1)
       lg.rectangle("line", v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
       break
