@@ -50,7 +50,7 @@ function level:setup()
 end
 
 function level:getActiveRegion()
-  if self.current_active_region_q.on_scale.x == _G.SCALE_X and self.current_active_region_q.on_scale.x == _G.SCALE_Y and self.current_active_region_q.q ~= nil then
+  if self.current_active_region_q.on_scale.x == _G.SCALE_X and self.current_active_region_q.on_scale.y == _G.SCALE_Y and self.current_active_region_q.q ~= nil then
     return self.current_active_region_q.q
   end
 
