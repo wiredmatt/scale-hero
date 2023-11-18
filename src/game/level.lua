@@ -1,6 +1,5 @@
 local Atlas = require "src.tool.atlas"
 local utils = require "src.game.utils"
-local pprint = require "lib.pprint"
 
 local level = {
   ---@type {s: string, x: number,y: number, r: number, sx: number, sy: number}[]
@@ -21,9 +20,9 @@ local level = {
 
 function level:setup()
   self.data = {}
-  local vertices = {}
 
-  for _, v in ipairs(Atlas.names) do
+  -- generate the spritebatches for each tile we want to draw
+  for _, v in ipairs(Atlas.texture_names) do
     local img, q = Atlas.lib.getSprite(v)
     self.batches[v] = {
       sb = love.graphics.newSpriteBatch(img,
@@ -32,7 +31,7 @@ function level:setup()
     }
   end
 
-  -- prefill the data table with just ground_base_1
+  -- prefill the data table with random ground tiles
   for i = 0, _G.WIDTH, _G.TILE_SIZE do
     for j = 0, _G.HEIGHT, _G.TILE_SIZE do
       if love.math.random(1, 10) < 3 then
@@ -101,7 +100,7 @@ function level:setupSpriteBatch()
 end
 
 function level:draw()
-  for _, name in pairs(Atlas.names) do
+  for _, name in pairs(Atlas.texture_names) do
     local b = self.batches[name]
     -- print("drawing", name, b.sb:getCount())
     love.graphics.setColor(1, 1, 1, 1)
@@ -110,6 +109,7 @@ function level:draw()
 
   local active_region_quad = self:getActiveRegion()
 
+  -- debug all tiles
   -- for _, v in ipairs(self.selectable_tiles) do
   --   local style = "line"
   --   love.graphics.setColor(1, 1, 1, 1)
@@ -134,6 +134,7 @@ function level:draw()
   local correctedMouseX = (mouseX / _G.SCALE_X)
   local correctexMouseY = (mouseY / _G.SCALE_Y)
 
+  -- debug mouse position
   -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
 
   for _, v in ipairs(self.selectable_tiles) do

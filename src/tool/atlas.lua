@@ -37,7 +37,7 @@ local Atlas = {
   Export = Export,
   Load = Load,
   lib = iffy,
-  names = names
+  texture_names = names
 }
 
 return Atlas

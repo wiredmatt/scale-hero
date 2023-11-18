@@ -1,11 +1,3 @@
-_G.TILE_SIZE = 16
-_G.WIDTH = 1366
-_G.HEIGHT = 768
-_G.SCREEN_WIDTH = 1366
-_G.SCREEN_HEIGHT = 768
-_G.SCALE_X = 22
-_G.SCALE_Y = 22
-
 local Atlas = require "src.tool.atlas"
 local level = require "src.game.level"
 local Center = require "lib.center"
@@ -43,7 +35,7 @@ function love.draw()
     love.graphics.setBlendMode('alpha')
   Center:finish()
 
-    -- love.graphics.print(tostring(_G.SCALE_X),20,20)
+  -- love.graphics.print(tostring(_G.SCALE_X),20,20)
 
   ---@format enable
 end
@@ -56,12 +48,10 @@ function love.keypressed(k)
   if k == "a" then
     _G.SCALE_X = _G.SCALE_X + 1
     _G.SCALE_Y = _G.SCALE_Y + 1
-    -- cam.scale = _G.SCALE
   else
     if _G.SCALE_X > 1 then
       _G.SCALE_X = _G.SCALE_X - 1
       _G.SCALE_Y = _G.SCALE_Y - 1
-      -- cam.scale = _G.SCALE
       -- _G.WIDTH = _G.WIDTH + _G.TILE_SIZE
       -- _G.HEIGHT = _G.HEIGHT + _G.TILE_SIZE
       -- level:next() ; 1 = standard terrain ; 2 = terrain with obstacles ; 3 = terrain with environmental stuff...
