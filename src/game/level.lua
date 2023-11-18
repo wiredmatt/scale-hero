@@ -3,7 +3,11 @@ local utils = require "src.game.utils"
 
 local level = {
   ---@type {s: string, x: number,y: number, r: number, sx: number, sy: number}[]
-  data = {},
+  ground_tiles = {},
+  ---@type {x:number, y:number}[]
+  selectable_tiles = {}, -- tiles that are in the active region
+  ---@type table<string, {sb: love.SpriteBatch, quad: love.Quad}>
+  batches = {},          -- spritebatches for each ground tile, improves performance vastly.
   current_active_region_q = {
     ---@type love.Quad
     q = nil,
@@ -11,15 +15,11 @@ local level = {
       x = _G.SCALE_X,
       y = _G.SCALE_Y
     }
-  },
-  ---@type table<string, {sb: love.SpriteBatch, quad: love.Quad}>
-  batches = {},
-  ---@type {x:number, y:number}[]
-  selectable_tiles = {}
+  } -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
 }
 
 function level:setup()
-  self.data = {}
+  self.ground_tiles = {}
 
   -- generate the spritebatches for each tile we want to draw
   for _, v in ipairs(Atlas.texture_names) do
@@ -31,13 +31,13 @@ function level:setup()
     }
   end
 
-  -- prefill the data table with random ground tiles
+  -- prefill the ground_tiles table with random ground tiles
   for i = 0, _G.WIDTH, _G.TILE_SIZE do
     for j = 0, _G.HEIGHT, _G.TILE_SIZE do
       if love.math.random(1, 10) < 3 then
-        table.insert(self.data, { x = i, y = j, s = "ground_base_2", r = 0, sx = 1, sy = 1 })
+        table.insert(self.ground_tiles, { x = i, y = j, s = "ground_base_2", r = 0, sx = 1, sy = 1 })
       else
-        table.insert(self.data, { x = i, y = j, s = "ground_base_1", r = 0, sx = 1, sy = 1 })
+        table.insert(self.ground_tiles, { x = i, y = j, s = "ground_base_1", r = 0, sx = 1, sy = 1 })
       end
     end
   end
@@ -72,6 +72,7 @@ function level:update(dt)
   self:setupSpriteBatch()
 end
 
+-- since this is called every frame, we want to make sure we only update the spritebatch if the active region has changed, otherwise there's no need to re-process everything.
 function level:setupSpriteBatch()
   if self.current_active_region_q.q == self:getActiveRegion() then
     return
@@ -83,7 +84,7 @@ function level:setupSpriteBatch()
     b.sb:clear()
   end
 
-  for _, v in ipairs(self.data) do
+  for _, v in ipairs(self.ground_tiles) do
     local b = self.batches[v.s]
 
     if utils.isInQuad(self:getActiveRegion(), v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
@@ -102,7 +103,6 @@ end
 function level:draw()
   for _, name in pairs(Atlas.texture_names) do
     local b = self.batches[name]
-    -- print("drawing", name, b.sb:getCount())
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(b.sb)
   end

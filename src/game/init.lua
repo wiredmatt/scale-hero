@@ -35,6 +35,7 @@ function love.draw()
     love.graphics.setBlendMode('alpha')
   Center:finish()
 
+
   -- love.graphics.print(tostring(_G.SCALE_X),20,20)
 
   ---@format enable
