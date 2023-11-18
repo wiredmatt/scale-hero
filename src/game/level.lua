@@ -29,7 +29,7 @@ function level:setup()
   for _, v in ipairs(Atlas.texture_names) do
     local img, q = Atlas.lib.getSprite(v)
     self.batches[v] = {
-      sb = love.graphics.newSpriteBatch(img,
+      sb = lg.newSpriteBatch(img,
         5000),
       quad = q
     }
@@ -59,7 +59,7 @@ function level:getActiveRegion()
   local w = _G.WIDTH / _G.SCALE_X
   local h = _G.HEIGHT / _G.SCALE_Y
 
-  local q = love.graphics.newQuad(x, y, w, h, _G.WIDTH, _G.HEIGHT)
+  local q = lg.newQuad(x, y, w, h, _G.WIDTH, _G.HEIGHT)
 
   self.current_active_region_q = {
     q = q,
@@ -106,10 +106,11 @@ function level:setupSpriteBatch()
 end
 
 function level:draw()
+  lg.setColor(1, 1, 1, 1)
+
   for _, name in pairs(Atlas.texture_names) do
     local b = self.batches[name]
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(b.sb)
+    lg.draw(b.sb)
   end
 
   local active_region_quad = self:getActiveRegion()
@@ -131,8 +132,8 @@ function level:draw()
   -- end
 
   local x, y, w, h = active_region_quad:getViewport()
-  love.graphics.setColor(1, 0.2, 0.8, 1)
-  love.graphics.rectangle("line", x, y, w, h)
+  lg.setColor(1, 0.2, 0.8, 1)
+  lg.rectangle("line", x, y, w, h)
 
   local mouseX, mouseY = love.mouse.getPosition()
 
@@ -141,13 +142,13 @@ function level:draw()
 
   -- debug mouse position
   -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
-
+  -- TODO: Only run this when the mouse position changes, not every frame.
   for _, v in ipairs(self.selectable_tiles) do
-    local tileQuad = love.graphics.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
+    local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
     if utils.isInQuad(tileQuad, correctedMouseX, correctexMouseY, 0.25, 0.25) then
-      love.graphics.setColor(1, 1, 1, 1)
-      love.graphics.rectangle("line", v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
+      lg.setColor(1, 1, 1, 1)
+      lg.rectangle("line", v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
       break
     end
   end

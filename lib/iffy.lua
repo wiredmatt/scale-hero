@@ -19,6 +19,10 @@ local iffy = {
   spritedata = {},   --the data of sprites created so they could be exported
 }
 
+if not _G.lg then
+  _G.lg = love.graphics
+end
+
 --- @param url string
 local function fileExists(url)
   return love.filesystem.getInfo(url) and
@@ -60,7 +64,7 @@ end
 
 --- remove extension from a file as well as remove the path
 --- @param filename string
---- @param dontremovepath boolean
+--- @param dontremovepath ?boolean
 local function removeExtension(filename, dontremovepath)
   if not dontremovepath then filename = removePath(filename) end
   return filename:sub(1, lastIndexOf(filename, ".") - 1)
@@ -120,7 +124,7 @@ function iffy.newSprite(iname, name, x, y, width, height, sw, sh)
   if not iffy.spritesheets[iname] then iffy.spritesheets[iname] = {} end
   if not iffy.spritedata[iname] then iffy.spritedata[iname] = {} end
 
-  iffy.spritesheets[iname][name] = love.graphics.newQuad(x, y, width, height, sw, sh)
+  iffy.spritesheets[iname][name] = lg.newQuad(x, y, width, height, sw, sh)
   table.insert(iffy.spritedata[iname], { name, x, y, width, height })
   return iffy.spritesheets[iname][name]
 end
@@ -136,7 +140,7 @@ function iffy.newImage(iname, url)
     url = iname
     iname = removeExtension(url)
   end
-  iffy.images[iname] = type(url) == 'string' and love.graphics.newImage(url) or url
+  iffy.images[iname] = type(url) == 'string' and lg.newImage(url) or url
 end
 
 --[[
@@ -164,7 +168,7 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
       )
       iffy.images[name] = url
     else
-      iffy.images[name] = love.graphics.newImage(url)
+      iffy.images[name] = lg.newImage(url)
       if not metafile then
         metafile = getmetafile(url)
       end
@@ -177,12 +181,12 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
     url = name
     metafile = getmetafile(url)
     name = removeExtension(url)
-    iffy.images[name] = love.graphics.newImage(url)
+    iffy.images[name] = lg.newImage(url)
   end
 
   sw, sh = sw or iffy.images[name]:getWidth(), sh or iffy.images[name]:getHeight()
 
-  local i, sname, x, y, width, height = 1
+  local i, sname, x, y, width, height = 1, "", 0, 0, 0, 0
 
   if getExtension(metafile) == "xml" then
     --READ XML FILE ('i' means the line number)
@@ -198,7 +202,7 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
         _, width = string.match(line, "width=([\"'])(.-)%1")
         _, height = string.match(line, "height=([\"'])(.-)%1")
 
-        t[sname] = love.graphics.newQuad(x, y, width, height, sw, sh)
+        t[sname] = lg.newQuad(x, y, width, height, sw, sh)
       end
       i = i + 1
     end
@@ -225,7 +229,7 @@ function iffy.newAtlas(name, url, metafile, sw, sh)
       --If a valid line was read
       if type(t[sname]) == 'table' then
         x, y, width, height = unpack(t[sname])
-        t[sname] = love.graphics.newQuad(x, y, width, height, sw, sh)
+        t[sname] = lg.newQuad(x, y, width, height, sw, sh)
       end
     end
   end
@@ -254,12 +258,12 @@ function iffy.newTileset(name, url, tw, th, mx, my, sw, sh)
     tw, th, mx, my, sw, sh = url, tw, th, mx, my, sw
     url = name
     name = removeExtension(url)
-    iffy.images[name] = love.graphics.newImage(url)
+    iffy.images[name] = lg.newImage(url)
   else
     if type(url) == 'table' then
       iffy.images[name] = url
     else
-      iffy.images[name] = love.graphics.newImage(url)
+      iffy.images[name] = lg.newImage(url)
     end
   end
 
@@ -271,7 +275,7 @@ function iffy.newTileset(name, url, tw, th, mx, my, sw, sh)
   for i = 1, tiles_h do
     for j = 1, tiles_w do
       current = j + (i - 1) * tiles_w
-      t[current] = love.graphics.newQuad(
+      t[current] = lg.newQuad(
         (j - 1) * th + (current == 1 and 0 or mx),
         (i - 1) * tw + (current == 1 and 0 or my),
         tw, th,
@@ -356,12 +360,11 @@ end
 --[[
 	Gets a sprite (it's undefined for which atlas) keyed by sname.
 	You don't need to specify the image name, iffy would automatically find
-	which image the sprite is for!!
+	which image the sprite is for.
 	Use when you know you don't have sprites with same names (for different atlases)
-	Arguments:
-		sname: The name of the sprite.
-	Returns the atlas (Drawable) of the sprite and the quad (Quad)
 ]]
+---@param sname string -- the name of the sprite
+---@return love.Image, love.Quad
 function iffy.getSprite(sname)
   for i in pairs(iffy.spritesheets) do
     if iffy.spritesheets[i][sname] then
@@ -394,7 +397,7 @@ function iffy.drawSprite(sname, ...)
     iffy.cache[sname] = {}
     iffy.cache[sname][1], iffy.cache[sname][2] = iffy.getSprite(sname)
   end
-  love.graphics.draw(iffy.cache[sname][1], iffy.cache[sname][2], ...)
+  lg.draw(iffy.cache[sname][1], iffy.cache[sname][2], ...)
 end
 
 --[[
@@ -404,7 +407,7 @@ function iffy.draw(aname, sname, ...)
   assert(iffy.spritesheets[aname],
     "Iffy Error! The spritesheet by the name '" .. aname .. "' doesn't exist!"
   )
-  love.graphics.draw(iffy.images[aname], iffy.spritesheets[aname][sname], ...)
+  lg.draw(iffy.images[aname], iffy.spritesheets[aname][sname], ...)
 end
 
 --[[
@@ -434,6 +437,10 @@ function iffy.exportCSV(iname, path, filename)
   end
   local file = io.open(path .. filename, 'w')
 
+  if file == nil then
+    error("Iffy Error! Couldn't open file for writing")
+  end
+
   file:write(string.format("#This SpriteData is for '%s'\n\n", iname))
   for i = 1, #iffy.spritedata[iname] do
     file:write('\t', table.concat(iffy.spritedata[iname][i], ','), '\n')
@@ -452,6 +459,10 @@ function iffy.exportXML(iname, path, filename)
     print(string.format("Iffy Warning! File '%s' Already Exists!", path .. filename))
   end
   local file = io.open(path .. filename, 'w')
+
+  if file == nil then
+    error("Iffy Error! Couldn't open file for writing")
+  end
 
   local sname, x, y, width, height
 

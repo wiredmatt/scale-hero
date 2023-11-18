@@ -9,12 +9,12 @@ function love.load()
   love.window.setMode(_G.SCREEN_WIDTH, _G.SCREEN_HEIGHT,
     { resizable = false, vsync = true, fullscreen = false })
 
-  love.graphics.setDefaultFilter("nearest", "nearest")
+  lg.setDefaultFilter("nearest", "nearest")
 
   Atlas.Export() -- generates assets/main_atlas.xml
   Atlas.Load()   -- loads assets/main_atlas.xml into memory, `main_atlas` is now available
 
-  canvas = love.graphics.newCanvas(_G.WIDTH, _G.HEIGHT)
+  canvas = lg.newCanvas(_G.WIDTH, _G.HEIGHT)
 
   Center:setupScreen(_G.WIDTH, _G.HEIGHT)
 
@@ -23,20 +23,20 @@ end
 
 function love.draw()
   ---@format disable
-  love.graphics.setCanvas(canvas)
-    love.graphics.clear()
+  lg.setCanvas(canvas)
+    lg.clear()
     level:draw()
-  love.graphics.setCanvas()
+  lg.setCanvas()
 
   Center:start()
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setBlendMode('alpha', 'premultiplied')
-    love.graphics.draw(canvas, 0, 0, 0, _G.SCALE_X, _G.SCALE_Y)
-    love.graphics.setBlendMode('alpha')
+    lg.setColor(1, 1, 1, 1)
+    lg.setBlendMode('alpha', 'premultiplied')
+    lg.draw(canvas, 0, 0, 0, _G.SCALE_X, _G.SCALE_Y)
+    lg.setBlendMode('alpha')
   Center:finish()
 
 
-  -- love.graphics.print(tostring(_G.SCALE_X),20,20)
+  -- lg.print(tostring(_G.SCALE_X),20,20)
 
   ---@format enable
 end

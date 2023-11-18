@@ -7,4 +7,5 @@ _G.SCREEN_WIDTH = 1366
 _G.SCREEN_HEIGHT = 768
 _G.SCALE_X = 22
 _G.SCALE_Y = 22
-_G.print = pprint -- override the default print function to be able to pretty print tables
+_G.print = pprint     -- override the default print function to be able to pretty print tables
+_G.lg = love.graphics -- cache love.graphics
