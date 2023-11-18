@@ -1,5 +1,13 @@
+if not _G.lg then
+  _G.lg = love.graphics
+end
+
+---@class Center
 local center = {}
 
+---@param width number
+---@param height number
+---@return Center
 function center:setupScreen(width, height)
   self._WIDTH = width
   self._HEIGHT = height
@@ -19,6 +27,10 @@ function center:setupScreen(width, height)
   return self
 end
 
+---@param top number
+---@param right number
+---@param bottom number
+---@param left number
 function center:setBorders(top, right, bottom, left)
   self._BORDERS.t = top
   self._BORDERS.r = right
@@ -26,22 +38,28 @@ function center:setBorders(top, right, bottom, left)
   self._BORDERS.l = left
 end
 
+---@param width number
 function center:setMaxWidth(width)
   self._MAX_WIDTH = width
 end
 
+---@param height number
 function center:setMaxHeight(height)
   self._MAX_HEIGHT = height
 end
 
+---@param width number
 function center:setMaxRelativeWidth(width)
   self._MAX_RELATIVE_WIDTH = width
 end
 
+---@param height number
 function center:setMaxRelativeHeight(height)
   self._MAX_RELATIVE_HEIGHT = height
 end
 
+---@param width number
+---@param height number
 function center:resize(width, height)
   self._SCREEN_WIDTH = width
   self._SCREEN_HEIGHT = height
@@ -78,13 +96,13 @@ function center:apply()
 end
 
 function center:start()
-  love.graphics.push()
-  love.graphics.translate(self._OFFSET_X, self._OFFSET_Y)
-  love.graphics.scale(self._SCALE, self._SCALE)
+  lg.push()
+  lg.translate(self._OFFSET_X, self._OFFSET_Y)
+  lg.scale(self._SCALE, self._SCALE)
 end
 
 function center:finish()
-  love.graphics.pop()
+  lg.pop()
 end
 
 function center:toGame(x, y)

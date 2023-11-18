@@ -60,6 +60,10 @@ function love.keypressed(k)
   end
 end
 
+function love.mousemoved(x, y, dx, dy, istouch)
+  level:mousemoved(x, y, dx, dy, istouch)
+end
+
 function love.update(dt)
   level:update(dt)
 end

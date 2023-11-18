@@ -7,6 +7,8 @@ local level = {
   ground_tiles = {},     -- all ground tiles
   ---@type Tile[]
   selectable_tiles = {}, -- ground tiles that are in the active region
+  ---@type Tile
+  hovered_tile = nil,    -- the tile the mouse is currently hovering over
   ---@type table<string, {sb: love.SpriteBatch, quad: love.Quad}>
   batches = {},          -- spritebatches for each type of tile, improves performance vastly.
   current_active_region_q = {
@@ -138,13 +140,37 @@ function level:draw()
 
   -- debug mouse position
   -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
-  -- TODO: Only run this when the mouse position changes, not every frame.
+
+  if self.hovered_tile ~= nil then
+    lg.setColor(1, 1, 1, 1)
+    lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
+  end
+end
+
+---@param x number
+---@param y number
+---@param dx number
+---@param dy number
+---@param istouch boolean
+function level:mousemoved(x, y, dx, dy, istouch)
+  self.hovered_tile = nil
+
+  local correctedMouseX, correctedMouseY = (x / _G.SCALE_X), (y / _G.SCALE_Y)
+
+  -- check if the mouse position is still inside the previously selected tile, to avoid looping again unnecesarily
+  if self.hovered_tile ~= nil then
+    local tileQuad = lg.newQuad(self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
+
+    if utils.isInQuad(tileQuad, correctedMouseX, correctedMouseY, 0.25, 0.25) then
+      return
+    end
+  end
+
   for _, v in ipairs(self.selectable_tiles) do
     local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
     if utils.isInQuad(tileQuad, correctedMouseX, correctedMouseY, 0.25, 0.25) then
-      lg.setColor(1, 1, 1, 1)
-      lg.rectangle("line", v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
+      self.hovered_tile = v
       break
     end
   end
