@@ -161,16 +161,6 @@ end
 
 function level:draw_characters()
   lg.setColor(1, 1, 1, 1)
-  -- Atlas.lib.drawSprite(
-  --   SPRITE_NAMES.hero_knight,
-  --   (self.selectable_tiles[1].x + _G.TILE_SIZE * _G.TILE_SCALE / 2 / _G.CHARACTER_SCALE) -
-  --   (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
-  --   (self.selectable_tiles[1].y + _G.TILE_SIZE * _G.TILE_SCALE / 2 / _G.CHARACTER_SCALE) -
-  --   (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
-  --   0,
-  --   _G.CHARACTER_SCALE, _G.CHARACTER_SCALE
-  -- )
-
   for _, character in pairs(self.hero_party.members) do
     local sprite, x, y, r, sx, sy = character:getDrawArgs()
     Atlas.lib.drawSprite(sprite, x, y, r, sx, sy)
