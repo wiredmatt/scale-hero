@@ -5,6 +5,7 @@ local Party = require "src.game.ent.Party"
 local Character = require "src.game.ent.Character"
 local uuid = require "lib.uuid"
 
+local mouseX, mouseY = 0, 0
 
 local level = {
   ---@type Tile[]
@@ -124,12 +125,6 @@ function level:draw_tiles()
     lg.draw(b.sb)
   end
 
-
-  if self.hovered_tile ~= nil then
-    lg.setColor(1, 1, 1, 1)
-    lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
-  end
-
   -- local active_region_quad = self:getActiveRegion()
 
   -- debug all tiles
@@ -167,21 +162,35 @@ function level:draw_characters()
   end
 end
 
+function level:draw_overlays()
+  lg.setColor(1, 1, 1, 1)
+
+  if self.hovered_tile ~= nil then
+    -- lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
+    Atlas.lib.drawSprite(
+      SPRITE_NAMES.indicator_base,
+      self.hovered_tile.x,
+      self.hovered_tile.y
+    )
+  end
+
+  love.graphics.rectangle("fill", mouseX, mouseY, 0.25, 0.25)
+end
+
 ---@param x number
 ---@param y number
 ---@param dx number
 ---@param dy number
 ---@param istouch boolean
 function level:mousemoved(x, y, dx, dy, istouch)
-  self.hovered_tile = nil
+  mouseX, mouseY = (x / _G.TILE_SCALE / _G.FSCALE_MUL), (y / _G.TILE_SCALE / _G.FSCALE_MUL) -- / 1.5
 
-  local correctedMouseX, correctedMouseY = (x / _G.TILE_SCALE), (y / _G.TILE_SCALE)
 
   -- check if the mouse position is still inside the previously selected tile, to avoid looping again unnecesarily
   if self.hovered_tile ~= nil then
     local tileQuad = lg.newQuad(self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, correctedMouseX, correctedMouseY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, mouseX, mouseY, 0.25, 0.25) then
       return
     end
   end
@@ -189,7 +198,7 @@ function level:mousemoved(x, y, dx, dy, istouch)
   for _, v in ipairs(self.selectable_tiles) do
     local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, correctedMouseX, correctedMouseY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, mouseX, mouseY, 0.25, 0.25) then
       self.hovered_tile = v
       break
     end

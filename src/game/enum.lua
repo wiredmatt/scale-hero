@@ -21,4 +21,9 @@ SPRITE_NAMES = {
   -- start characters
   hero_knight = "hero_knight",
   -- end characters
+
+  -- start indicators
+  indicator_base = "indicator_base"
+  -- end indicators
+
 }

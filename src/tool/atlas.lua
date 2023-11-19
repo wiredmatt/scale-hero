@@ -18,6 +18,10 @@ function Export()
   -- load characters
   iffy.newSprite("main_atlas", SPRITE_NAMES.hero_knight, 0, 128, 16, 16)
 
+  -- load indicators
+  iffy.newSprite("main_atlas", SPRITE_NAMES.indicator_base, 0, 80, 16, 16)
+
+
 
   -- generates assets/main_atlas.xml
   iffy.exportXML("main_atlas", "assets")
