@@ -1,6 +1,8 @@
 local Atlas = require "src.tool.atlas"
 local utils = require "src.game.utils"
 local Tile = require "src.game.ent.Tile"
+local Party = require "src.game.ent.Party"
+
 
 local level = {
   ---@type Tile[]
@@ -19,8 +21,8 @@ local level = {
       y = _G.SCALE_Y
     }
   }, -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
-  ---@type table<string, PlayableCharacter>
-  hero_party = {},
+  ---@type Party
+  hero_party = nil,
   enemies = {}
 }
 
@@ -47,6 +49,10 @@ function level:setup()
       end
     end
   end
+
+  self.hero_party = Party()
+
+  print(self.hero_party)
 
   self:setupSpriteBatch()
 end
