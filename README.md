@@ -12,3 +12,4 @@ My submission for [Game Off 2023](https://itch.io/jam/game-off-2023)
 ## TODO
 
 - [ ] Implement grid-based spatial partitioning for `level:mousemoved` in `level.lua`
+- [ ] Update highlighted tile when re-scaling? probably not necessary unless scaling can happen while the player is doing something
