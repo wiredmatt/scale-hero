@@ -13,3 +13,4 @@ My submission for [Game Off 2023](https://itch.io/jam/game-off-2023)
 
 - [ ] Implement grid-based spatial partitioning for `level:mousemoved` in `level.lua`
 - [ ] Update highlighted tile when re-scaling? probably not necessary unless scaling can happen while the player is doing something
+- [ ] Make use of love.graphics.scale and push more, most of the math calculations done can likely be replaced using draw calls with love.graphics.scale, instead of re-doing some calculations that happen for every tile and character.

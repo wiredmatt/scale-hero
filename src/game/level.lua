@@ -166,16 +166,12 @@ function level:draw_overlays()
   lg.setColor(1, 1, 1, 1)
 
   if self.hovered_tile ~= nil then
-    -- lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
     lg.push()
     lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
     Atlas.lib.drawSprite(
       SPRITE_NAMES.indicator_base,
       self.hovered_tile.x,
-      self.hovered_tile.y,
-      0,
-      1,
-      1
+      self.hovered_tile.y
     )
     lg.pop()
   end
