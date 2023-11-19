@@ -46,8 +46,6 @@ function utils.isInQuad(active_region_quad, x, y, w, h)
       a.y <= b.y and
       b.x + b.w <= a.x + a.w and
       b.y + b.h <= a.y + a.h
-
-  -- return b.x >= a.x --  and b.x + b.w <= (a.w + b.x)
 end
 
 setmetatable(utils, {

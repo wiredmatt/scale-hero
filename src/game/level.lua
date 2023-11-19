@@ -3,7 +3,7 @@ local utils = require "src.game.utils"
 local Tile = require "src.game.ent.Tile"
 local Party = require "src.game.ent.Party"
 local Character = require "src.game.ent.Character"
-
+local uuid = require "lib.uuid"
 
 
 local level = {
@@ -19,8 +19,8 @@ local level = {
     ---@type love.Quad
     q = nil,
     on_scale = {
-      x = _G.SCALE_X,
-      y = _G.SCALE_Y
+      x = _G.TILE_SCALE,
+      y = _G.TILE_SCALE
     }
   }, -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
   ---@type Party
@@ -51,27 +51,32 @@ function level:setup()
     end
   end
 
-  self.hero_party = Party()
-
-  local hero_knight = Character("hero_knight", 0, 0)
+  self.hero_party = Party(
+    {
+      [uuid()] = Character("hero_knight", 0, 0),
+      [uuid()] = Character("hero_knight", 16, 0),
+      [uuid()] = Character("hero_knight", 32, 0),
+      [uuid()] = Character("hero_knight", 0, 16),
+    }
+  )
 
   self:setupSpriteBatch()
 end
 
 function level:getActiveRegion()
-  if self.current_active_region_q.on_scale.x == _G.SCALE_X and self.current_active_region_q.on_scale.y == _G.SCALE_Y and self.current_active_region_q.q ~= nil then
+  if self.current_active_region_q.on_scale.x == _G.TILE_SCALE and self.current_active_region_q.on_scale.y == _G.TILE_SCALE and self.current_active_region_q.q ~= nil then
     return self.current_active_region_q.q
   end
 
-  local x, y, w, h = 0, 0, _G.WIDTH / _G.SCALE_X, _G.HEIGHT / _G.SCALE_Y
+  local x, y, w, h = 0, 0, _G.WIDTH / _G.TILE_SCALE, _G.HEIGHT / _G.TILE_SCALE
 
   local q = lg.newQuad(x, y, w, h, _G.WIDTH, _G.HEIGHT)
 
   self.current_active_region_q = {
     q = q,
     on_scale = {
-      x = _G.SCALE_X,
-      y = _G.SCALE_Y
+      x = _G.TILE_SCALE,
+      y = _G.TILE_SCALE
     }
   }
 
@@ -111,7 +116,7 @@ function level:setupSpriteBatch()
   self.selectable_tiles = __selectable_tiles
 end
 
-function level:draw()
+function level:draw_tiles()
   lg.setColor(1, 1, 1, 1)
 
   for _, name in pairs(Atlas.ground_keys) do
@@ -119,7 +124,13 @@ function level:draw()
     lg.draw(b.sb)
   end
 
-  local active_region_quad = self:getActiveRegion()
+
+  if self.hovered_tile ~= nil then
+    lg.setColor(1, 1, 1, 1)
+    lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
+  end
+
+  -- local active_region_quad = self:getActiveRegion()
 
   -- debug all tiles
   -- for _, v in ipairs(self.selectable_tiles) do
@@ -138,21 +149,32 @@ function level:draw()
   -- end
 
   -- debug active viewport
-  local x, y, w, h = active_region_quad:getViewport()
-  lg.setColor(1, 0.2, 0.8, 1)
-  lg.rectangle("line", x, y, w, h)
+  -- local x, y, w, h = active_region_quad:getViewport()
+  -- lg.setColor(1, 0.2, 0.8, 1)
+  -- lg.rectangle("line", x, y, w, h)
 
   -- local mouseX, mouseY = love.mouse.getPosition()
-  -- local correctedMouseX, correctedMouseY = (mouseX / _G.SCALE_X), (mouseY / _G.SCALE_Y)
+  -- local correctedMouseX, correctedMouseY = (mouseX / _G.TILE_SCALE), (mouseY / _G.TILE_SCALE)
   -- debug mouse position
   -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
+end
 
-  if self.hovered_tile ~= nil then
-    lg.setColor(1, 1, 1, 1)
-    lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
+function level:draw_characters()
+  lg.setColor(1, 1, 1, 1)
+  -- Atlas.lib.drawSprite(
+  --   SPRITE_NAMES.hero_knight,
+  --   (self.selectable_tiles[1].x + _G.TILE_SIZE * _G.TILE_SCALE / 2 / _G.CHARACTER_SCALE) -
+  --   (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
+  --   (self.selectable_tiles[1].y + _G.TILE_SIZE * _G.TILE_SCALE / 2 / _G.CHARACTER_SCALE) -
+  --   (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
+  --   0,
+  --   _G.CHARACTER_SCALE, _G.CHARACTER_SCALE
+  -- )
+
+  for _, character in pairs(self.hero_party.members) do
+    local sprite, x, y, r, sx, sy = character:getDrawArgs()
+    Atlas.lib.drawSprite(sprite, x, y, r, sx, sy)
   end
-
-  Atlas.lib.drawSprite(SPRITE_NAMES.hero_knight, self.selectable_tiles[1].x + 2, self.selectable_tiles[1].y + 2, 0, 1, 1)
 end
 
 ---@param x number
@@ -163,7 +185,7 @@ end
 function level:mousemoved(x, y, dx, dy, istouch)
   self.hovered_tile = nil
 
-  local correctedMouseX, correctedMouseY = (x / _G.SCALE_X), (y / _G.SCALE_Y)
+  local correctedMouseX, correctedMouseY = (x / _G.TILE_SCALE), (y / _G.TILE_SCALE)
 
   -- check if the mouse position is still inside the previously selected tile, to avoid looping again unnecesarily
   if self.hovered_tile ~= nil then
