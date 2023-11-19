@@ -141,9 +141,8 @@ function level:draw()
   lg.setColor(1, 0.2, 0.8, 1)
   lg.rectangle("line", x, y, w, h)
 
-  local mouseX, mouseY = love.mouse.getPosition()
-  local correctedMouseX, correctedMouseY = (mouseX / _G.SCALE_X), (mouseY / _G.SCALE_Y)
-
+  -- local mouseX, mouseY = love.mouse.getPosition()
+  -- local correctedMouseX, correctedMouseY = (mouseX / _G.SCALE_X), (mouseY / _G.SCALE_Y)
   -- debug mouse position
   -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
 
