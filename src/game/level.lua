@@ -2,6 +2,8 @@ local Atlas = require "src.tool.atlas"
 local utils = require "src.game.utils"
 local Tile = require "src.game.ent.Tile"
 local Party = require "src.game.ent.Party"
+local Character = require "src.game.ent.Character"
+
 
 
 local level = {
@@ -23,14 +25,13 @@ local level = {
   }, -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
   ---@type Party
   hero_party = nil,
-  enemies = {}
+  ---@type table<number, Party>
+  enemy_parties = {} -- enemy "waves" - each wave is a party of enemies that will spawn at a certain scale.
 }
 
 function level:setup()
-  self.ground_tiles = {}
-
   -- generate the spritebatches for each tile we want to draw
-  for _, v in ipairs(Atlas.texture_names) do
+  for _, v in ipairs(Atlas.ground_keys) do
     local img, q = Atlas.lib.getSprite(v)
     self.batches[v] = {
       sb = lg.newSpriteBatch(img,
@@ -52,7 +53,7 @@ function level:setup()
 
   self.hero_party = Party()
 
-  print(self.hero_party)
+  local hero_knight = Character("hero_knight", 0, 0)
 
   self:setupSpriteBatch()
 end
@@ -113,7 +114,7 @@ end
 function level:draw()
   lg.setColor(1, 1, 1, 1)
 
-  for _, name in pairs(Atlas.texture_names) do
+  for _, name in pairs(Atlas.ground_keys) do
     local b = self.batches[name]
     lg.draw(b.sb)
   end
@@ -150,6 +151,8 @@ function level:draw()
     lg.setColor(1, 1, 1, 1)
     lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
   end
+
+  Atlas.lib.drawSprite(SPRITE_NAMES.hero_knight, self.selectable_tiles[1].x + 2, self.selectable_tiles[1].y + 2, 0, 1, 1)
 end
 
 ---@param x number
