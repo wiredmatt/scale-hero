@@ -167,14 +167,20 @@ function level:draw_overlays()
 
   if self.hovered_tile ~= nil then
     -- lg.rectangle("line", self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE)
+    lg.push()
+    lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
     Atlas.lib.drawSprite(
       SPRITE_NAMES.indicator_base,
       self.hovered_tile.x,
-      self.hovered_tile.y
+      self.hovered_tile.y,
+      0,
+      1,
+      1
     )
+    lg.pop()
   end
 
-  love.graphics.rectangle("fill", mouseX, mouseY, 0.25, 0.25)
+  love.graphics.rectangle("fill", mouseX, mouseY, 20, 20)
 end
 
 ---@param x number
@@ -183,14 +189,17 @@ end
 ---@param dy number
 ---@param istouch boolean
 function level:mousemoved(x, y, dx, dy, istouch)
-  mouseX, mouseY = (x / _G.TILE_SCALE / _G.FSCALE_MUL), (y / _G.TILE_SCALE / _G.FSCALE_MUL) -- / 1.5
+  mouseX, mouseY = (x), (y)
+
+
+  local offsetX, offsetY = (x / _G.TILE_SCALE), (y / _G.TILE_SCALE)
 
 
   -- check if the mouse position is still inside the previously selected tile, to avoid looping again unnecesarily
   if self.hovered_tile ~= nil then
     local tileQuad = lg.newQuad(self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, mouseX, mouseY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, offsetX, offsetY, 0.25, 0.25) then
       return
     end
   end
@@ -198,7 +207,7 @@ function level:mousemoved(x, y, dx, dy, istouch)
   for _, v in ipairs(self.selectable_tiles) do
     local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, mouseX, mouseY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, offsetX, offsetY, 0.25, 0.25) then
       self.hovered_tile = v
       break
     end

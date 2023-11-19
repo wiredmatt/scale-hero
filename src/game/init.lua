@@ -1,6 +1,5 @@
 local Atlas = require "src.tool.atlas"
 local level = require "src.game.level"
-local Center = require "lib.center"
 
 -- canvases to draw specific content to
 -- each canvas is drawn to the screen with a different scale
@@ -28,8 +27,6 @@ function love.load()
   character_canvas = lg.newCanvas(_G.WIDTH, _G.HEIGHT)
   overlay_canvas = lg.newCanvas(_G.WIDTH, _G.HEIGHT)
 
-  Center:setupScreen(_G.WIDTH, _G.HEIGHT)
-
   level:setup()
 end
 
@@ -51,14 +48,12 @@ function love.draw()
     level:draw_overlays()
   lg.setCanvas()
 
-  Center:start()
     lg.setColor(1, 1, 1, 1)
     lg.setBlendMode('alpha', 'premultiplied')
     lg.draw(tile_canvas, 0, 0, 0, _G.TILE_SCALE, _G.TILE_SCALE)
     lg.draw(character_canvas, 0, 0, 0, _G.CHARACTER_SCALE, _G.CHARACTER_SCALE)
-    lg.draw(overlay_canvas, 0, 0, 0, _G.TILE_SCALE, _G.TILE_SCALE)
+    lg.draw(overlay_canvas, 0, 0, 0, 1, 1)
     lg.setBlendMode('alpha')
-  Center:finish()
 
 
   lg.print(tostring(_G.TILE_SCALE),20,20)
@@ -66,17 +61,11 @@ function love.draw()
   ---@format enable
 end
 
-function love.resize(width, height)
-  Center:resize(width, height)
-  _G.SCREEN_WIDTH, _G.SCREEN_HEIGHT = width, height
-end
-
 function love.keypressed(k)
   if k == "a" then
     _G.TILE_SCALE = _G.TILE_SCALE + 1
   elseif k == "1" then
     love.window.setFullscreen(true)
-    _G.FSCALE_MUL = 1.45
   else
     if _G.TILE_SCALE > 2 then
       _G.TILE_SCALE = _G.TILE_SCALE - 1
