@@ -8,6 +8,7 @@ My submission for [Game Off 2023](https://itch.io/jam/game-off-2023)
 - [iffy](./lib/iffy.lua) - Slightly modified version of [iffy](https://github.com/besnoi/iffy). Very nice abstractions to work with sprites and quads in spritesheets.
 - [object](./lib/object.lua) - Slightly modified version of [classic](https://github.com/rxi/classic). OOP for Lua! Really not necessary since you can totally make OOP with Lua tables and EmmyLua annotations, but this library utilities and its mixin implementation  are super useful.
 - [pprint.lua](./lib/pprint.lua) - Slightly modified version of [pprint](https://github.com/jagt/pprint.lua) to allow prefixes (I use it for coloring and basically make the logger tool work as expected). Helps printing stuff to stdout! The default print function lacks the ability to properly print tables and nested tables. See my overwrite [here](./src/__setup.lua#L10)
+- [ansicolor.lua](https://github.com/randrews/color/tree/master) - Helps printing colors to stdout!
 - [uuid.lua](https://github.com/Tieske/uuid/tree/master) - UUIDs in Lua. Used to ID objects.
 
 ## TODO

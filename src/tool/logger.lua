@@ -20,25 +20,25 @@ local logger = {
 function logger:log(text)
   print({
     __PREFIX__ = self.colors.info
-  }, self.levels.info .. text)
+  }, text)
 end
 
 function logger:debug(text)
   print({
     __PREFIX__ = self.colors.debug .. self.levels.debug
-  }, self.levels.debug .. text)
+  }, text)
 end
 
 function logger:warn(text)
   print({
     __PREFIX__ = self.colors.warn .. self.levels.warn
-  }, self.levels.info .. text)
+  }, text)
 end
 
 function logger:error(text)
   print({
     __PREFIX__ = self.colors.error .. self.levels.error
-  }, self.levels.info .. text)
+  }, text)
 end
 
 return logger
