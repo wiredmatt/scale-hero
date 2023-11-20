@@ -14,7 +14,7 @@ local gui_canvas = {}       -- buttons and such
 
 function love.load()
   love.window.setMode(_G.SCREEN_WIDTH, _G.SCREEN_HEIGHT,
-    { resizable = true, vsync = true, fullscreen = false })
+    { resizable = true, vsync = true, fullscreen = true })
 
   -- _G.SCREEN_WIDTH, _G.SCREEN_HEIGHT = love.graphics.getDimensions()
 
@@ -59,6 +59,11 @@ function love.draw()
   lg.print(tostring(_G.TILE_SCALE),20,20)
 
   ---@format enable
+end
+
+function love.resize(w, h)
+  _G.SCREEN_WIDTH = w
+  _G.SCREEN_HEIGHT = h
 end
 
 function love.keypressed(k)
