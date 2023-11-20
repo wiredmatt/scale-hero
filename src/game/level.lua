@@ -4,6 +4,7 @@ local Tile = require "src.game.ent.Tile"
 local Party = require "src.game.ent.Party"
 local Character = require "src.game.ent.Character"
 local uuid = require "lib.uuid"
+local logger = require "src.tool.logger"
 
 local mouseX, mouseY = 0, 0
 
@@ -31,6 +32,7 @@ local level = {
 }
 
 function level:setup()
+  logger:log("HEY!")
   -- generate the spritebatches for each tile we want to draw
   for _, v in ipairs(Atlas.ground_keys) do
     local img, q = Atlas.lib.getSprite(v)
@@ -52,14 +54,31 @@ function level:setup()
     end
   end
 
+  -- generate the spritebatches for each enemy character we want to draw
+  for _, v in ipairs(Atlas.character_keys) do
+    local img, q = Atlas.lib.getSprite(v)
+
+    self.batches[v] = {
+      sb = lg.newSpriteBatch(img,
+        100),
+      quad = q
+    }
+  end
+
   self.hero_party = Party(
     {
       [uuid()] = Character("hero_knight", 0, 0),
-      [uuid()] = Character("hero_knight", 16, 0),
-      [uuid()] = Character("hero_knight", 32, 0),
-      [uuid()] = Character("hero_knight", 0, 16),
+      -- [uuid()] = Character("hero_knight", 16, 0),
+      -- [uuid()] = Character("hero_knight", 32, 0),
+      -- [uuid()] = Character("hero_knight", 0, 16),
     }
   )
+
+  self.enemy_parties = {
+    [_G.INITIAL_TILE_SCALE] = Party({
+      [uuid()] = Character("enemy_cacti", 0, 0)
+    })
+  }
 
   self:setupSpriteBatch()
 end
@@ -115,6 +134,24 @@ function level:setupSpriteBatch()
   end
 
   self.selectable_tiles = __selectable_tiles
+
+
+  if self.enemy_parties[_G.TILE_SCALE] ~= nil then
+    for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
+      local b = self.batches[enemy.sprite]
+      local _, x, y, r, sx, sy = enemy:getDrawArgs()
+      b.sb:add(b.quad, x, y, r, sx, sy)
+    end
+  else
+    logger:warn("[level:setupSpriteBatch] No enemy party found for scale: " .. _G.TILE_SCALE)
+  end
+
+
+  for _, hero in pairs(self.hero_party.members) do
+    local b = self.batches[hero.sprite]
+    local _, x, y, r, sx, sy = hero:getDrawArgs()
+    b.sb:add(b.quad, x, y, r, sx, sy)
+  end
 end
 
 function level:draw_tiles()
@@ -156,9 +193,9 @@ end
 
 function level:draw_characters()
   lg.setColor(1, 1, 1, 1)
-  for _, character in pairs(self.hero_party.members) do
-    local sprite, x, y, r, sx, sy = character:getDrawArgs()
-    Atlas.lib.drawSprite(sprite, x, y, r, sx, sy)
+  for _, character in pairs(Atlas.character_keys) do
+    local b = self.batches[character]
+    lg.draw(b.sb)
   end
 end
 

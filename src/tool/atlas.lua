@@ -18,6 +18,10 @@ function Export()
   -- load characters
   iffy.newSprite("main_atlas", SPRITE_NAMES.hero_knight, 0, 128, 16, 16)
 
+
+  -- load enemies
+  iffy.newSprite("main_atlas", SPRITE_NAMES.enemy_cacti, 0, 160, 16, 16)
+
   -- load indicators
   iffy.newSprite("main_atlas", SPRITE_NAMES.indicator_base, 0, 80, 16, 16)
 
@@ -35,13 +39,20 @@ local Atlas = {
   Export = Export,
   Load = Load,
   lib = iffy,
-  ground_keys = {
+  ground_keys = { -- only ground
     SPRITE_NAMES.ground_base_1,
     SPRITE_NAMES.ground_base_2,
   },
-  character_keys = {
+  character_keys = { -- enemies and heroes
     SPRITE_NAMES.hero_knight,
-  }
+    SPRITE_NAMES.enemy_cacti,
+  },
+  hero_keys = { -- only heroes
+    SPRITE_NAMES.hero_knight,
+  },
+  enemy_keys = { -- only enemies
+    SPRITE_NAMES.enemy_cacti,
+  },
 }
 
 return Atlas

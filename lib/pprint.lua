@@ -16,19 +16,20 @@ pprint.defaults = {
   show_thread = false,
   show_userdata = false,
   -- additional display trigger
-  show_metatable = false,   -- show metatable
-  show_all = false,         -- override other show settings and show everything
-  use_tostring = false,     -- use __tostring to print table if available
-  filter_function = nil,    -- called like callback(value[,key, parent]), return truty value to hide
-  object_cache = 'local',   -- cache blob and table to give it a id, 'local' cache per print, 'global' cache
+  show_metatable = false, -- show metatable
+  show_all = false,       -- override other show settings and show everything
+  use_tostring = false,   -- use __tostring to print table if available
+  filter_function = nil,  -- called like callback(value[,key, parent]), return truty value to hide
+  object_cache = 'local', -- cache blob and table to give it a id, 'local' cache per print, 'global' cache
   -- per process, falsy value to disable (might cause infinite loop)
   -- format settings
-  indent_size = 2,         -- indent for each nested table level
-  level_width = 80,        -- max width per indent level
-  wrap_string = true,      -- wrap string when it's longer than level_width
-  wrap_array = false,      -- wrap every array elements
-  string_is_utf8 = true,   -- treat string as utf8, and count utf8 char when wrapping, if possible
-  sort_keys = true,        -- sort table keys
+  indent_size = 2,       -- indent for each nested table level
+  level_width = 80,      -- max width per indent level
+  wrap_string = true,    -- wrap string when it's longer than level_width
+  wrap_array = false,    -- wrap every array elements
+  string_is_utf8 = true, -- treat string as utf8, and count utf8 char when wrapping, if possible
+  sort_keys = true,      -- sort table keys
+  quote_strings = false  -- surround the strings with '' or ""
 }
 
 local TYPES = {
@@ -256,11 +257,11 @@ function pprint.pformat(obj, option, printer)
     cache = {}
   end
 
-  local last = ''                  -- used for look back and remove trailing comma
+  local last = ''              -- used for look back and remove trailing comma
   local status = {
-    indent = '',                   -- current indent
-    len = 0,                       -- current line length
-    printed_something = false,     -- used to remove leading new lines
+    indent = '',               -- current indent
+    len = 0,                   -- current line length
+    printed_something = false, -- used to remove leading new lines
   }
 
   local wrapped_printer = function(s)
@@ -281,7 +282,7 @@ function pprint.pformat(obj, option, printer)
       _indent(d)
     end
     status.len = 0
-    return true     -- used to close bracket correctly
+    return true -- used to close bracket correctly
   end
 
   local function _p(s, nowrap)
@@ -298,7 +299,7 @@ function pprint.pformat(obj, option, printer)
   local formatter = {}
   local function format(v)
     local f = formatter[type(v)]
-    f = f or formatter.table     -- allow patched type()
+    f = f or formatter.table -- allow patched type()
     if option.filter_function and option.filter_function(v, nil, nil) then
       return ''
     else
@@ -400,16 +401,20 @@ function pprint.pformat(obj, option, printer)
     end
     local concat = table.concat(flat_table)
 
-    if force_long_quote then
-      local dashes = string.rep('=', long_quote_dashes)
-      return '[' .. dashes .. '[' .. concat .. ']' .. dashes .. ']'
-    elseif tokens.has_single_quote then
-      -- use double quote
-      return '"' .. concat .. '"'
-    else
-      -- use single quote
-      return "'" .. concat .. "'"
+    if option.quote_strings then
+      if force_long_quote then
+        local dashes = string.rep('=', long_quote_dashes)
+        return '[' .. dashes .. '[' .. concat .. ']' .. dashes .. ']'
+      elseif tokens.has_single_quote then
+        -- use double quote
+        return '"' .. concat .. '"'
+      else
+        -- use single quote
+        return "'" .. concat .. "'"
+      end
     end
+
+    return concat
   end
 
   local function table_formatter(t)
@@ -552,7 +557,7 @@ function pprint.pformat(obj, option, printer)
   -- set formatters
   formatter['nil'] = option.show_nil and tostring_formatter or nop_formatter
   formatter['boolean'] = option.show_boolean and tostring_formatter or nop_formatter
-  formatter['number'] = option.show_number and number_formatter or nop_formatter   -- need to handle math.huge
+  formatter['number'] = option.show_number and number_formatter or nop_formatter -- need to handle math.huge
   formatter['function'] = option.show_function and make_fixed_formatter('function', option.object_cache) or nop_formatter
   formatter['thread'] = option.show_thread and make_fixed_formatter('thread', option.object_cache) or nop_formatter
   formatter['userdata'] = option.show_userdata and make_fixed_formatter('userdata', option.object_cache) or nop_formatter
@@ -565,7 +570,7 @@ function pprint.pformat(obj, option, printer)
   end
 
   _p(format(obj))
-  printer(last)   -- close the buffered one
+  printer(last) -- close the buffered one
 
   -- put cache back if global
   if option.object_cache == 'global' then
@@ -580,12 +585,25 @@ function pprint.pprint(...)
   local args = { ... }
   -- select will get an accurate count of array len, counting trailing nils
   local len = select('#', ...)
-  for ix = 1, len do
+
+  local _ix = 1
+
+  if type(args[1]) == 'table' then
+    local option = args[1]
+    if option.__PREFIX__ then
+      io.write(option.__PREFIX__)
+      _ix = 2
+    end
+  end
+
+  for ix = _ix, len do
     pprint.pformat(args[ix], nil, io.write)
     io.write('\n')
   end
 end
 
+---@overload fun(...: any)
+---@overload fun(prefix: {__PREFIX__: string}, ...)
 setmetatable(pprint, {
   __call = function(_, ...)
     pprint.pprint(...)
