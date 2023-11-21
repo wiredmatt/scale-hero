@@ -1,5 +1,7 @@
 local Base = require "src.game.ent.Base"
+local TweenAnim = require "src.game.ent.TweenAnim"
 local flux = require "lib.flux"
+local logger = require "src.tool.logger"
 
 ---@class Character : Base
 ---@field super Base
@@ -12,9 +14,45 @@ function Character:new(sprite, x, y)
   self.super.new(self, sprite, x, y, _G.TILE_SIZE, _G.TILE_SIZE)
   self.sx = _G.CHARACTER_SCALE
   self.sy = _G.CHARACTER_SCALE
+
+  self.animations = {
+    ["idle"] = TweenAnim(
+      { t = self, duration = 0.5, value = { sy = self.sy + 0.125 } },
+      { t = self, duration = 0.5, value = { sy = self.sy - 0.125 } }
+    )
+  }
+
+  self.current_animation = "idle"
+
+  -- self.animations = {
+  --   ["idle"] = {
+  --     play = function()
+  --       if playing == "idle" then
+  --         return
+  --       end
+
+  --       flux.to(self, 0.5, { sy = self.sy + 0.125 }):ease("quadinout"):onstart(function()
+  --         playing = "idle"
+  --       end):oncomplete(function()
+  --         flux.to(self, 0.5, { sy = self.sy - 0.125 }):ease("quadinout"):oncomplete(function()
+  --           playing = nil
+  --         end)
+  --       end)
+  --     end
+  --   }
+  -- }
 end
 
----@return SpriteName, number, number, number, number, number, number, number, number, number
+---@return AtlasKey atlas_key
+---@return number x
+---@return number y
+---@return number r
+---@return number sx
+---@return number sy
+---@return number ox
+---@return number oy
+---@return number kx
+---@return number ky
 function Character:getDrawArgs()
   ---@format disable
   return self.sprite,
@@ -26,7 +64,7 @@ function Character:getDrawArgs()
       (_G.TILE_SIZE * _G.TILE_SCALE / 2 / _G.CHARACTER_SCALE) -
       (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
 
-      0, -- CHANGEME
+      self.rotation, -- CHANGEME
 
       self.sx, self.sy,
       self.ox, self.oy,
@@ -34,22 +72,18 @@ function Character:getDrawArgs()
   ---@format enable
 end
 
-function Character:idle()
-  if self.isTweenOngoing then
-    return
+function Character:animate(dt)
+  if self.current_animation ~= nil then
+    self.animations[self.current_animation]:play(dt)
   end
-
-  flux.to(self, 0.5, { sy = self.sy + 0.125 }):ease("quadinout"):onstart(function()
-    self.isTweenOngoing = true
-  end):oncomplete(function()
-    flux.to(self, 0.5, { sy = self.sy - 0.125 }):ease("quadinout"):oncomplete(function()
-      self.isTweenOngoing = false
-    end)
-  end)
 end
 
 function Character:update(dt)
-  self:idle()
+  self:animate(dt)
+
+  -- if love.mouse.isDown(1) then
+  --   self.current_animation = nil
+  -- end
 end
 
 return Character

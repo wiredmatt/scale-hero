@@ -411,7 +411,7 @@ function iffy.draw(aname, sname, ...)
 end
 
 --[[
-	What if you want more than one spritename perhaps for your own ease!
+	What if you want more than one AtlasKey perhaps for your own ease!
 	duplicateSprite will basically make an alias of the sprite
 	Arguments
 		iname : The image the sprite belongs to

@@ -56,6 +56,7 @@ local esc = string.char(27, 91)
 local names = { 'black', 'red', 'green', 'yellow', 'blue', 'pink', 'cyan', 'white' }
 local hi_names = { 'BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'PINK', 'CYAN', 'WHITE' }
 
+---@type table<string, string>
 ansicolor.fg, ansicolor.bg = {}, {}
 
 for i, name in ipairs(names) do

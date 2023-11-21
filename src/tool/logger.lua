@@ -1,7 +1,6 @@
 local ansicolor = require "lib.ansicolor"
 
 local logger = {
-  ---@type table<string, string>
   colors = {
     debug = ansicolor.bold .. ansicolor.fg.green,
     info = ansicolor.bold .. ansicolor.fg.white,

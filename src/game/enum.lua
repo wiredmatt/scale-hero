@@ -4,7 +4,7 @@ TILE_TYPES = {
   wall = 1,
 }
 
----@enum SpriteName
+---@enum AtlasKey
 SPRITE_NAMES = {
   -- start ground tiles
   ground_base_1 = "ground_base_1",

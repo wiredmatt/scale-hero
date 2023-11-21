@@ -6,7 +6,7 @@
 -- This library is free software; you can redistribute it and/or modify it
 -- under the terms of the MIT license. See LICENSE for details.
 --
-
+---@class Flux
 local flux = { _version = "0.1.5" }
 flux.__index = flux
 
@@ -48,7 +48,7 @@ for k, v in pairs(easing) do
 end
 
 
-
+---@class Flux.Tween
 local tween = {}
 tween.__index = tween
 
