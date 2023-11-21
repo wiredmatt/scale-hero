@@ -20,9 +20,12 @@ SPRITE_NAMES = {
 
   -- start characters
   hero_knight = "hero_knight",
+  hero_bob = "hero_bob",
+
 
 
   enemy_cacti = "enemy_cacti",
+  enemy_bat = "enemy_bat",
   -- end characters
 
   -- start indicators

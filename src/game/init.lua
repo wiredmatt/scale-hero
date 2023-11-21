@@ -1,5 +1,6 @@
 local Atlas = require "src.tool.atlas"
 local level = require "src.game.level"
+local flux = require "lib.flux"
 
 -- canvases to draw specific content to
 -- each canvas is drawn to the screen with a different scale
@@ -96,5 +97,6 @@ function love.mousemoved(x, y, dx, dy, istouch)
 end
 
 function love.update(dt)
+  flux.update(dt) -- update all tweens
   level:update(dt)
 end

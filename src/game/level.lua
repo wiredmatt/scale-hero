@@ -67,7 +67,7 @@ function level:setup()
 
   self.hero_party = Party(
     {
-      [uuid()] = Character("hero_knight", 0, 0),
+      [uuid()] = Character("hero_bob", 0, 0),
       -- [uuid()] = Character("hero_knight", 16, 0),
       -- [uuid()] = Character("hero_knight", 32, 0),
       -- [uuid()] = Character("hero_knight", 0, 16),
@@ -76,7 +76,10 @@ function level:setup()
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
-      [uuid()] = Character("enemy_cacti", 32, 16)
+      [uuid()] = Character("enemy_cacti", 32, 16),
+    }),
+    [16] = Party({
+      [uuid()] = Character("enemy_bat", 32, 16)
     })
   }
 
@@ -104,11 +107,37 @@ function level:getActiveRegion()
 end
 
 function level:update(dt)
+  for _, hero in pairs(self.hero_party.members) do
+    hero:update(dt)
+  end
+
+  for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
+    enemy:update(dt)
+  end
+
   self:setupSpriteBatch()
 end
 
 -- since this is called every frame, we want to make sure we only update the spritebatch if the active region has changed, otherwise there's no need to re-process everything.
 function level:setupSpriteBatch()
+  if self.enemy_parties[_G.TILE_SCALE] ~= nil then
+    for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
+      local b = self.batches[enemy.sprite]
+      b.sb:clear()
+      local _, x, y, r, sx, sy, ox, oy, kx, ky = enemy:getDrawArgs()
+      b.sb:add(b.quad, x, y, r, sx, sy, ox, oy, kx, ky)
+    end
+  else
+    logger:warn("[level:setupSpriteBatch] No enemy party found for scale: " .. _G.TILE_SCALE)
+  end
+
+  for _, hero in pairs(self.hero_party.members) do
+    local b = self.batches[hero.sprite]
+    b.sb:clear()
+    local _, x, y, r, sx, sy, ox, oy, kx, ky = hero:getDrawArgs()
+    b.sb:add(b.quad, x, y, r, sx, sy, ox, oy, kx, ky)
+  end
+
   if self.current_active_region_q.q == self:getActiveRegion() then
     return
   end
@@ -134,24 +163,6 @@ function level:setupSpriteBatch()
   end
 
   self.selectable_tiles = __selectable_tiles
-
-
-  if self.enemy_parties[_G.TILE_SCALE] ~= nil then
-    for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
-      local b = self.batches[enemy.sprite]
-      local _, x, y, r, sx, sy = enemy:getDrawArgs()
-      b.sb:add(b.quad, x, y, r, sx, sy)
-    end
-  else
-    logger:warn("[level:setupSpriteBatch] No enemy party found for scale: " .. _G.TILE_SCALE)
-  end
-
-
-  for _, hero in pairs(self.hero_party.members) do
-    local b = self.batches[hero.sprite]
-    local _, x, y, r, sx, sy = hero:getDrawArgs()
-    b.sb:add(b.quad, x, y, r, sx, sy)
-  end
 end
 
 function level:draw_tiles()
