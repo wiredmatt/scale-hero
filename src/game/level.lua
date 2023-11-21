@@ -76,7 +76,7 @@ function level:setup()
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
-      [uuid()] = Character("enemy_cacti", 0, 0)
+      [uuid()] = Character("enemy_cacti", 32, 16)
     })
   }
 

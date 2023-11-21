@@ -80,12 +80,14 @@ function love.keypressed(k)
     end
   end
 
-  if _G.TILE_SCALE == 3 then
+  if _G.TILE_SCALE == 9 then
+    _G.CHARACTER_SCALE = 2
+  elseif _G.TILE_SCALE == 5 then
+    _G.CHARACTER_SCALE = 1.8
+  elseif _G.TILE_SCALE == 4 then
     _G.CHARACTER_SCALE = 1.5
-  elseif _G.TILE_SCALE == 2 then
-    _G.CHARACTER_SCALE = 1.35
-  elseif _G.TILE_SCALE > 3 then
-    _G.CHARACTER_SCALE = _G.INITIAL_CHARACTER_SCALE
+  elseif _G.TILE_SCALE == 3 then
+    _G.CHARACTER_SCALE = 1.3
   end
 end
 

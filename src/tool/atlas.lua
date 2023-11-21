@@ -20,7 +20,7 @@ function Export()
 
 
   -- load enemies
-  iffy.newSprite("main_atlas", SPRITE_NAMES.enemy_cacti, 0, 160, 16, 16)
+  iffy.newSprite("main_atlas", SPRITE_NAMES.enemy_cacti, 0, 144, 16, 16)
 
   -- load indicators
   iffy.newSprite("main_atlas", SPRITE_NAMES.indicator_base, 0, 80, 16, 16)
