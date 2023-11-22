@@ -17,30 +17,12 @@ function Character:new(sprite, x, y)
 
   self.animations = {
     ["idle"] = TweenAnim(
-      { t = self, duration = 0.5, value = { sy = self.sy + 0.125 } },
-      { t = self, duration = 0.5, value = { sy = self.sy - 0.125 } }
+      { t = self, duration = 0.3, value = { sy = self.sy + 0.1 } },
+      { t = self, duration = 0.3, value = { sy = self.sy - 0.1 } }
     )
   }
 
   self.current_animation = "idle"
-
-  -- self.animations = {
-  --   ["idle"] = {
-  --     play = function()
-  --       if playing == "idle" then
-  --         return
-  --       end
-
-  --       flux.to(self, 0.5, { sy = self.sy + 0.125 }):ease("quadinout"):onstart(function()
-  --         playing = "idle"
-  --       end):oncomplete(function()
-  --         flux.to(self, 0.5, { sy = self.sy - 0.125 }):ease("quadinout"):oncomplete(function()
-  --           playing = nil
-  --         end)
-  --       end)
-  --     end
-  --   }
-  -- }
 end
 
 ---@return AtlasKey atlas_key
