@@ -27,34 +27,38 @@ function Character:new(sprite, x, y, default_animation)
     ["hit_right"] = TweenAnim(
       ANIMATION_TYPE.once,
 
-      { t = self, duration = 0.1, value = { x = self.x + 0.5 } },
-      { t = self, duration = 1, value = { x = self.x - 0.2 } },
-
-      { t = self, duration = 0, value = { x = self.x } }
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.2, value = { x = self.x + _G.TILE_SIZE / 2 } },
+      { t = self, duration = 0.5, value = { x = self.x - 0.5 } },
+      { t = self, duration = 0, value = { x = self.x } },
+      { t = self, duration = 0.5, value = { ky = 0 } }
     ),
     ["hit_left"] = TweenAnim(
       ANIMATION_TYPE.once,
 
-      { t = self, duration = 0.1, value = { x = self.x - 0.5 } },
-      { t = self, duration = 1, value = { x = self.x + 0.2 } },
-
-      { t = self, duration = 0, value = { x = self.x } }
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.2, value = { x = self.x - _G.TILE_SIZE / 2 } },
+      { t = self, duration = 0.5, value = { x = self.x + 0.5 } },
+      { t = self, duration = 0, value = { x = self.x } },
+      { t = self, duration = 0.5, value = { ky = 0 } }
     ),
     ["hit_down"] = TweenAnim(
       ANIMATION_TYPE.once,
 
-      { t = self, duration = 0.1, value = { y = self.y + 0.5 } },
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.1, value = { y = self.y + _G.TILE_SIZE / 2 } },
       { t = self, duration = 1, value = { y = self.y - 0.2 } },
-
-      { t = self, duration = 0, value = { y = self.y } }
+      { t = self, duration = 0, value = { y = self.y } },
+      { t = self, duration = 0.5, value = { ky = 0 } }
     ),
     ["hit_up"] = TweenAnim(
       ANIMATION_TYPE.once,
 
-      { t = self, duration = 0.1, value = { y = self.y - 0.5 } },
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.1, value = { y = self.y - _G.TILE_SIZE / 2 } },
       { t = self, duration = 1, value = { y = self.y + 0.2 } },
-
-      { t = self, duration = 0, value = { y = self.y } }
+      { t = self, duration = 0, value = { y = self.y } },
+      { t = self, duration = 0.5, value = { ky = 0 } }
     ),
 
     ["get_hit_x"] = TweenAnim(
@@ -114,7 +118,7 @@ function Character:getDrawArgs()
       (_G.TILE_SIZE * _G.TILE_SCALE / 2 / fixed_scale) -
       (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
 
-      self.rotation, -- CHANGEME
+      self.rotation,
 
       self.sx, self.sy,
       self.ox, self.oy,
@@ -148,7 +152,7 @@ function Character:update(dt)
   self:updateAnimation(dt)
 
   if love.mouse.isDown(1) then
-    self:setAnimation("get_hit_x")
+    self:setAnimation("hit_right")
   end
 end
 
