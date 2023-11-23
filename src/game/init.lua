@@ -92,8 +92,6 @@ function love.keypressed(k)
     _G.CHARACTER_SCALE = 1
   elseif _G.TILE_SCALE == 3 then
     _G.CHARACTER_SCALE = 0.6
-  elseif _G.TILE_SCALE == 2 then
-    _G.CHARACTER_SCALE = 0.5
   end
 end
 

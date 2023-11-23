@@ -266,7 +266,7 @@ function level:setupTileSpriteBatches()
   for _, v in ipairs(self.ground_tiles) do
     local b = self.batches[v.sprite]
 
-    if utils.isInQuad(self:getActiveRegion(), v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
+    if utils.isInQuad(self.current_active_region_q.q, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
       b.sb:setColor(1, 1, 1, 1)
       table.insert(__selectable_tiles, v)
     else

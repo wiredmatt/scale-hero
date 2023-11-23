@@ -19,7 +19,6 @@ _G.SCALES = {         -- levels
   [6] = true,
   [4] = true,
   [3] = true,
-  [2] = true
 }
 
 table.exists = function(t, v)
