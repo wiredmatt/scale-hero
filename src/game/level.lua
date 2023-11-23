@@ -32,13 +32,11 @@ local level = {
 }
 
 function level:setup()
-  logger:log("HEY!")
   -- generate the spritebatches for each tile we want to draw
   for _, v in ipairs(Atlas.ground_keys) do
     local img, q = Atlas.lib.getSprite(v)
     self.batches[v] = {
-      sb = lg.newSpriteBatch(img,
-        5000),
+      sb = lg.newSpriteBatch(img, 2000),
       quad = q
     }
   end
@@ -59,8 +57,7 @@ function level:setup()
     local img, q = Atlas.lib.getSprite(v)
 
     self.batches[v] = {
-      sb = lg.newSpriteBatch(img,
-        100),
+      sb = lg.newSpriteBatch(img, 2000),
       quad = q
     }
   end
@@ -70,7 +67,6 @@ function level:setup()
       [uuid()] = Character("hero_bob", 0, 0),
       -- [uuid()] = Character("hero_knight", 16, 0),
       -- [uuid()] = Character("hero_knight", 32, 0),
-      -- [uuid()] = Character("hero_knight", 0, 16),
     }
   )
 
@@ -79,11 +75,15 @@ function level:setup()
       [uuid()] = Character("enemy_cacti", 32, 16),
     }),
     [16] = Party({
-      [uuid()] = Character("enemy_bat", 32, 16)
+      [uuid()] = Character("enemy_cacti", 16, 0),
+      [uuid()] = Character("enemy_cacti", 32, 0),
+      [uuid()] = Character("enemy_bat", 48, 0),
+      [uuid()] = Character("enemy_bat", 64, 0),
     })
   }
 
-  self:setupSpriteBatch()
+  self:setupTileSpriteBatches()
+  self:setupCharacterSpriteBatches()
 end
 
 function level:getActiveRegion()
@@ -111,33 +111,44 @@ function level:update(dt)
     hero:update(dt)
   end
 
-  for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
-    enemy:update(dt)
+  if self.enemy_parties[_G.TILE_SCALE] ~= nil then
+    for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
+      enemy:update(dt)
+    end
   end
 
-  self:setupSpriteBatch()
+  self:setupTileSpriteBatches()
+  self:setupCharacterSpriteBatches()
 end
 
 -- since this is called every frame, we want to make sure we only update the spritebatch if the active region has changed, otherwise there's no need to re-process everything.
-function level:setupSpriteBatch()
+function level:setupCharacterSpriteBatches()
+  for _, name in ipairs(Atlas.character_keys) do
+    local b = self.batches[name]
+
+    if b ~= nil then
+      b.sb:clear()
+    else
+      logger:error("batch is nil for " .. name)
+    end
+  end
+
   if self.enemy_parties[_G.TILE_SCALE] ~= nil then
     for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
       local b = self.batches[enemy.sprite]
-      b.sb:clear()
       local _, x, y, r, sx, sy, ox, oy, kx, ky = enemy:getDrawArgs()
       b.sb:add(b.quad, x, y, r, sx, sy, ox, oy, kx, ky)
     end
-  else
-    logger:warn("[level:setupSpriteBatch] No enemy party found for scale: " .. _G.TILE_SCALE)
   end
 
   for _, hero in pairs(self.hero_party.members) do
     local b = self.batches[hero.sprite]
-    b.sb:clear()
     local _, x, y, r, sx, sy, ox, oy, kx, ky = hero:getDrawArgs()
     b.sb:add(b.quad, x, y, r, sx, sy, ox, oy, kx, ky)
   end
+end
 
+function level:setupTileSpriteBatches()
   if self.current_active_region_q.q == self:getActiveRegion() then
     return
   end

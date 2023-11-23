@@ -1,7 +1,5 @@
 local Base = require "src.game.ent.Base"
 local TweenAnim = require "src.game.ent.TweenAnim"
-local flux = require "lib.flux"
-local logger = require "src.tool.logger"
 
 ---@class Character : Base
 ---@field super Base
@@ -36,14 +34,16 @@ end
 ---@return number kx
 ---@return number ky
 function Character:getDrawArgs()
+  local fixed_scale = (_G.CHARACTER_SCALE >= 0.6 and _G.CHARACTER_SCALE or 1)
+
   ---@format disable
   return self.sprite,
-      (self.x * _G.TILE_SCALE / _G.CHARACTER_SCALE) +
-      (_G.TILE_SIZE * _G.TILE_SCALE / 2 / _G.CHARACTER_SCALE) -
+      (self.x * _G.TILE_SCALE / fixed_scale) +
+      (_G.TILE_SIZE * _G.TILE_SCALE / 2 / fixed_scale) -
       (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
 
-      (self.y * _G.TILE_SCALE / _G.CHARACTER_SCALE) +
-      (_G.TILE_SIZE * _G.TILE_SCALE / 2 / _G.CHARACTER_SCALE) -
+      (self.y * _G.TILE_SCALE / fixed_scale) +
+      (_G.TILE_SIZE * _G.TILE_SCALE / 2 / fixed_scale) -
       (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
 
       self.rotation, -- CHANGEME
