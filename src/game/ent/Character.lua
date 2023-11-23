@@ -1,5 +1,6 @@
-local Base = require "src.game.ent.Base"
+local Base      = require "src.game.ent.Base"
 local TweenAnim = require "src.game.ent.TweenAnim"
+local logger    = require "src.tool.logger"
 
 ---@class Character : Base
 ---@field super Base
@@ -8,19 +9,86 @@ local Character = Base:extend()
 
 ---@param x number
 ---@param y number
-function Character:new(sprite, x, y)
+---@param default_animation? string
+function Character:new(sprite, x, y, default_animation)
   self.super.new(self, sprite, x, y, _G.TILE_SIZE, _G.TILE_SIZE)
   self.sx = _G.CHARACTER_SCALE
   self.sy = _G.CHARACTER_SCALE
 
+  self.default_animation = default_animation or "idle_base"
+
   self.animations = {
-    ["idle"] = TweenAnim(
+    ["idle_base"] = TweenAnim(
+      ANIMATION_TYPE.loop,
+
       { t = self, duration = 0.3, value = { sy = self.sy + 0.1 } },
       { t = self, duration = 0.3, value = { sy = self.sy - 0.1 } }
-    )
+    ),
+    ["hit_right"] = TweenAnim(
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0.1, value = { x = self.x + 0.5 } },
+      { t = self, duration = 1, value = { x = self.x - 0.2 } },
+
+      { t = self, duration = 0, value = { x = self.x } }
+    ),
+    ["hit_left"] = TweenAnim(
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0.1, value = { x = self.x - 0.5 } },
+      { t = self, duration = 1, value = { x = self.x + 0.2 } },
+
+      { t = self, duration = 0, value = { x = self.x } }
+    ),
+    ["hit_down"] = TweenAnim(
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0.1, value = { y = self.y + 0.5 } },
+      { t = self, duration = 1, value = { y = self.y - 0.2 } },
+
+      { t = self, duration = 0, value = { y = self.y } }
+    ),
+    ["hit_up"] = TweenAnim(
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0.1, value = { y = self.y - 0.5 } },
+      { t = self, duration = 1, value = { y = self.y + 0.2 } },
+
+      { t = self, duration = 0, value = { y = self.y } }
+    ),
+
+    ["get_hit_x"] = TweenAnim(
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0.05, value = { x = self.x - 0.25 } },
+      { t = self, duration = 0.05, value = { x = self.x + 0.25 } },
+      { t = self, duration = 0.05, value = { x = self.x - 0.25 } },
+      { t = self, duration = 0.05, value = { x = self.x + 0.25 } },
+      { t = self, duration = 0.05, value = { x = self.x - 0.25 } },
+      { t = self, duration = 0.05, value = { x = self.x + 0.25 } },
+      { t = self, duration = 0.05, value = { x = self.x - 0.25 } },
+      { t = self, duration = 0.05, value = { x = self.x + 0.25 } },
+
+      { t = self, duration = 0, value = { x = self.x } }
+    ),
+
+    ["get_hit_y"] = TweenAnim(
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0.05, value = { y = self.y - 0.25 } },
+      { t = self, duration = 0.05, value = { y = self.y + 0.25 } },
+      { t = self, duration = 0.05, value = { y = self.y - 0.25 } },
+      { t = self, duration = 0.05, value = { y = self.y + 0.25 } },
+      { t = self, duration = 0.05, value = { y = self.y - 0.25 } },
+      { t = self, duration = 0.05, value = { y = self.y + 0.25 } },
+      { t = self, duration = 0.05, value = { y = self.y - 0.25 } },
+      { t = self, duration = 0.05, value = { y = self.y + 0.25 } },
+
+      { t = self, duration = 0, value = { y = self.y } }
+    ),
   }
 
-  self.current_animation = "idle"
+  self.current_animation = self.default_animation
 end
 
 ---@return AtlasKey atlas_key
@@ -54,18 +122,34 @@ function Character:getDrawArgs()
   ---@format enable
 end
 
-function Character:animate(dt)
+function Character:updateAnimation(dt)
   if self.current_animation ~= nil then
-    self.animations[self.current_animation]:play(dt)
+    local anim = self.animations[self.current_animation]
+
+    if anim.mode == ANIMATION_TYPE.once and anim.played_once then
+      self:setAnimation(self.default_animation)
+      return
+    else
+      anim:play(dt)
+    end
+  end
+end
+
+function Character:setAnimation(key)
+  local prev = self.current_animation
+
+  if prev ~= key then
+    self.current_animation = key
+    self.animations[prev]:reset()
   end
 end
 
 function Character:update(dt)
-  self:animate(dt)
+  self:updateAnimation(dt)
 
-  -- if love.mouse.isDown(1) then
-  --   self.current_animation = nil
-  -- end
+  if love.mouse.isDown(1) then
+    self:setAnimation("get_hit_x")
+  end
 end
 
 return Character

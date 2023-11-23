@@ -4,6 +4,12 @@ TILE_TYPES = {
   wall = 1,
 }
 
+---@enum AnimationType
+ANIMATION_TYPE = {
+  loop = 0,
+  once = 1,
+}
+
 ---@enum AtlasKey
 SPRITE_NAMES = {
   -- start ground tiles

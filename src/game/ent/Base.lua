@@ -30,7 +30,6 @@ function Base:new(sprite, x, y, width, height, rotation, sx, sy, ox, oy, kx, ky)
   self.sy = sy or 1
   self.kx = kx or 0
   self.ky = ky or 0
-  self.isTweenOngoing = false
 end
 
 function Base:update(dt)
