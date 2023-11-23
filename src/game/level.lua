@@ -74,16 +74,119 @@ function level:setup()
     [_G.INITIAL_TILE_SCALE] = Party({
       [uuid()] = Character("enemy_cacti", 32, 16),
     }),
-    [16] = Party({
-      [uuid()] = Character("enemy_cacti", 16, 0),
-      [uuid()] = Character("enemy_cacti", 32, 16),
-      [uuid()] = Character("enemy_bat", 48, 0),
-      [uuid()] = Character("enemy_bat", 64, 0),
-    })
+    [16] = Party({}),
+    [12] = Party({}),
+    [9] = Party({}),
+    [8] = Party({}),
+    [6] = Party({}),
+    [4] = Party({}),
+    [3] = Party({}),
+    [2] = Party({}),
   }
 
   self:setupTileSpriteBatches()
   self:setupCharacterSpriteBatches()
+end
+
+function level:makeEnemyPartyForScale(on_scale)
+  local q = self:getActiveRegion()
+  local x, y, w, h = q:getViewport()
+
+  local hero_party_members = self.hero_party.members
+
+  local free_spots = {}
+
+  -- while true do
+  --   -- _x must be in the range of x, w and be a multiple of on_scale at the same time
+  --   -- example: 16, 32, 48, 64, 80, 96, 112, 128
+  --   local _x = _G.TILE_SIZE * love.math.random(1, (w - _G.TILE_SIZE) / _G.TILE_SIZE)
+  --   local _y = _G.TILE_SIZE * love.math.random(1, (h - _G.TILE_SIZE) / _G.TILE_SIZE)
+
+  --   local is_valid = true
+
+  --   for _, hero in pairs(hero_party_members) do
+  --     if hero.x == _x and hero.y == _y then
+  --       is_valid = false
+  --       break
+  --     end
+  --   end
+
+  --   if is_valid then
+  --     table.insert(free_spots, { x = _x, y = _y })
+  --     break
+  --   end
+  -- end
+
+  for i = 0, w, _G.TILE_SIZE do
+    for j = 0, h, _G.TILE_SIZE do
+      if utils.isInQuad(q, i, j, _G.TILE_SIZE * 2, _G.TILE_SIZE * 2) then
+        local is_valid = true
+
+        for _, hero in pairs(hero_party_members) do
+          if hero.x == i and hero.y == j then
+            is_valid = false
+            break
+          end
+        end
+
+        if is_valid then
+          table.insert(free_spots, { x = i, y = j })
+        end
+      end
+    end
+  end
+
+  local enemy_party = self.enemy_parties[on_scale]
+
+  -- the higher the scale, the less enemies we to use.
+  -- the amount of enemies must not exceed the free_spots, but it can be less.
+  local max_enemies = #free_spots
+
+  local min_enemies = #free_spots / 2
+
+  local extra_enemies = 0
+  local base_chance = 100    -- initial chance of spawning an enemy
+  local decrease_factor = 10 -- decrease factor for each additional enemy
+
+  local used_spots = {}      -- keep track of used spots
+
+  for i = 1, max_enemies do
+    -- generate a random spot that hasn't been used before
+    local random_spot
+    repeat
+      random_spot = love.math.random(1, #free_spots)
+    until not used_spots[random_spot]
+
+    used_spots[random_spot] = true -- mark the spot as used
+
+    if #enemy_party.members < min_enemies then
+      local enemy = Character("enemy_cacti", free_spots[random_spot].x, free_spots[random_spot].y)
+      table.insert(enemy_party.members, enemy)
+    else
+      -- calculate the chance of spawning an enemy based on the number of extra enemies
+      local chance = base_chance / (1 + extra_enemies * decrease_factor)
+
+      if love.math.random(1, 100) < chance then
+        local enemy = Character("enemy_cacti", free_spots[random_spot].x, free_spots[random_spot].y)
+        table.insert(enemy_party.members, enemy)
+        extra_enemies = extra_enemies + 1
+      end
+    end
+  end
+
+  self.enemy_parties[on_scale] = enemy_party
+
+  -- put the enemies in random positions but avoid placing them on top of heroes
+  -- for _, enemy in pairs(party.members) do
+  --   local enemy_x, enemy_y = 0, 0
+
+  --   -- make a random x and y that is a multiple of the tile size
+
+
+
+  --   enemy.x = enemy_x
+  --   enemy.y = enemy_y
+  -- end
 end
 
 function level:getActiveRegion()
@@ -266,6 +369,12 @@ function level:mousemoved(x, y, dx, dy, istouch)
       self.hovered_tile = v
       break
     end
+  end
+end
+
+function level:onScaleChange()
+  if _G.SCALES[_G.TILE_SCALE] == true then
+    self:makeEnemyPartyForScale(_G.TILE_SCALE)
   end
 end
 

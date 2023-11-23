@@ -65,6 +65,7 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 0.5, value = { ky = 0 } }
     ),
 
+
     ["hit_down_right"] = TweenAnim( -- diagonal down right
       ANIMATION_TYPE.once,
 
@@ -75,6 +76,7 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 1, value = { ky = 0 } }
     ),
 
+
     ["hit_down_left"] = TweenAnim( -- diagonal down left
       ANIMATION_TYPE.once,
 
@@ -84,6 +86,7 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 0, value = { y = self.y, x = self.x } },
       { t = self, duration = 1, value = { ky = 0 } }
     ),
+
 
     ["hit_up_left"] = TweenAnim( -- diagonal up left
       ANIMATION_TYPE.once,

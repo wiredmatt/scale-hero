@@ -75,6 +75,7 @@ function love.keypressed(k)
   else
     if _G.TILE_SCALE > 2 then
       _G.TILE_SCALE = _G.TILE_SCALE - 1
+      level:onScaleChange()
       -- _G.WIDTH = _G.WIDTH + _G.TILE_SIZE
       -- _G.HEIGHT = _G.HEIGHT + _G.TILE_SIZE
       -- level:next() ; 1 = standard terrain ; 2 = terrain with obstacles ; 3 = terrain with environmental stuff...

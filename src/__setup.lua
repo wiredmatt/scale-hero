@@ -10,6 +10,28 @@ _G.TILE_SCALE = _G.INITIAL_TILE_SCALE
 _G.CHARACTER_SCALE = _G.INITIAL_CHARACTER_SCALE
 _G.lg = love.graphics -- cache love.graphics
 
+_G.SCALES = {         -- levels
+  [24] = true,
+  [16] = true,
+  [12] = true,
+  [9] = true,
+  [8] = true,
+  [6] = true,
+  [4] = true,
+  [3] = true,
+  [2] = true
+}
+
+table.exists = function(t, v)
+  for _, _v in ipairs(t) do
+    if _v == v then
+      return true
+    end
+  end
+
+  return false
+end
+
 require("lib.uuid").seed()
 
 
