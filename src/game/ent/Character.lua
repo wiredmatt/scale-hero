@@ -18,12 +18,16 @@ function Character:new(sprite, x, y, default_animation)
   self.default_animation = default_animation or "idle_base"
 
   self.animations = {
+    --- [[ BASE ANIMATIONS ]]
     ["idle_base"] = TweenAnim(
       ANIMATION_TYPE.loop,
 
       { t = self, duration = 0.3, value = { sy = self.sy + 0.1 } },
       { t = self, duration = 0.3, value = { sy = self.sy - 0.1 } }
     ),
+
+
+    --- [[ ATTACK ANIMATIONS ]]
     ["hit_right"] = TweenAnim(
       ANIMATION_TYPE.once,
 
@@ -61,6 +65,49 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 0.5, value = { ky = 0 } }
     ),
 
+    ["hit_down_right"] = TweenAnim( -- diagonal down right
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 } },
+      { t = self, duration = 1, value = { y = self.y - 0.2, x = self.x - 0.2 } },
+      { t = self, duration = 0, value = { y = self.y, x = self.x } },
+      { t = self, duration = 1, value = { ky = 0 } }
+    ),
+
+    ["hit_down_left"] = TweenAnim( -- diagonal down left
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 } },
+      { t = self, duration = 1, value = { y = self.y + 0.2, x = self.x + 0.2 } },
+      { t = self, duration = 0, value = { y = self.y, x = self.x } },
+      { t = self, duration = 1, value = { ky = 0 } }
+    ),
+
+    ["hit_up_left"] = TweenAnim( -- diagonal up left
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 } },
+      { t = self, duration = 1, value = { y = self.y + 0.2, x = self.x + 0.2 } },
+      { t = self, duration = 0, value = { y = self.y, x = self.x } },
+      { t = self, duration = 1, value = { ky = 0 } }
+    ),
+
+
+    ["hit_up_right"] = TweenAnim( -- diagonal up left
+      ANIMATION_TYPE.once,
+
+      { t = self, duration = 0, value = { ky = 0.1 } },
+      { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 } },
+      { t = self, duration = 1, value = { y = self.y + 0.2, x = self.x - 0.2 } },
+      { t = self, duration = 0, value = { y = self.y, x = self.x } },
+      { t = self, duration = 1, value = { ky = 0 } }
+    ),
+
+
+    --- [[ EFFECT ANIMATIONS ]]
     ["get_hit_x"] = TweenAnim(
       ANIMATION_TYPE.once,
 
@@ -75,7 +122,6 @@ function Character:new(sprite, x, y, default_animation)
 
       { t = self, duration = 0, value = { x = self.x } }
     ),
-
     ["get_hit_y"] = TweenAnim(
       ANIMATION_TYPE.once,
 
@@ -152,7 +198,7 @@ function Character:update(dt)
   self:updateAnimation(dt)
 
   if love.mouse.isDown(1) then
-    self:setAnimation("hit_right")
+    self:setAnimation("hit_up_right")
   end
 end
 

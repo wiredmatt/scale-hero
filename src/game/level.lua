@@ -76,7 +76,7 @@ function level:setup()
     }),
     [16] = Party({
       [uuid()] = Character("enemy_cacti", 16, 0),
-      [uuid()] = Character("enemy_cacti", 32, 0),
+      [uuid()] = Character("enemy_cacti", 32, 16),
       [uuid()] = Character("enemy_bat", 48, 0),
       [uuid()] = Character("enemy_bat", 64, 0),
     })
