@@ -49,12 +49,12 @@ function love.draw()
 
   rs.pop()
 
-  local x, y = love.mouse.getPosition()
+  -- local x, y = love.mouse.getPosition()
 
 
   -- lg.print(tostring(_G.TILE_SCALE),20,20)
-  lg.print(tostring(x) .. ", " .. tostring(y) ,20,20)
-  love.graphics.rectangle("fill", x, y, 20, 20)
+  -- lg.print(tostring(x) .. ", " .. tostring(y) ,20,20)
+  -- love.graphics.rectangle("fill", x, y, 20, 20)
 
   ---@format enable
 end

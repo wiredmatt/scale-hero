@@ -22,11 +22,9 @@ local level = {
   current_active_region_q = {
     ---@type love.Quad
     q = nil,
-    on_scale = {
-      x = _G.TILE_SCALE,
-      y = _G.TILE_SCALE
-    }
+    on_scale = 0
   }, -- active region is basically what's fully on screen (tiles that don't fit 100% are shown with a darker color)
+  last_drawn_on_scale = 0,
   ---@type Party
   hero_party = nil,
   ---@type table<number, Party>
@@ -180,22 +178,18 @@ function level:makeEnemyPartyForScale(on_scale)
 end
 
 function level:getActiveRegion()
-  if self.current_active_region_q.on_scale.x == _G.TILE_SCALE and self.current_active_region_q.on_scale.y == _G.TILE_SCALE and self.current_active_region_q.q ~= nil then
+  if self.current_active_region_q.on_scale == _G.TILE_SCALE and self.current_active_region_q.q ~= nil then
     return self.current_active_region_q.q
   end
 
-  logger:debug(rs.game_zone.w / _G.TILE_SCALE, rs.game_zone.h / _G.TILE_SCALE)
 
-  local x, y, w, h = 0, 0, rs.game_zone.w / _G.TILE_SCALE, rs.game_zone.h / _G.TILE_SCALE
+  local x, y, w, h = 0, 0, rs.game_width / _G.TILE_SCALE, rs.game_height / _G.TILE_SCALE
 
   local q = lg.newQuad(x, y, w, h, 1, 1)
 
   self.current_active_region_q = {
     q = q,
-    on_scale = {
-      x = _G.TILE_SCALE,
-      y = _G.TILE_SCALE
-    }
+    on_scale = _G.TILE_SCALE
   }
 
   return q
@@ -244,9 +238,13 @@ function level:setupCharacterSpriteBatches()
 end
 
 function level:setupTileSpriteBatches()
-  if self.current_active_region_q.q == self:getActiveRegion() then
+  if self.last_drawn_on_scale == _G.TILE_SCALE then
     return
   end
+
+
+  self:getActiveRegion()
+
 
   ---@type Tile[]
   local __selectable_tiles = {}
@@ -269,6 +267,8 @@ function level:setupTileSpriteBatches()
   end
 
   self.selectable_tiles = __selectable_tiles
+
+  self.last_drawn_on_scale = _G.TILE_SCALE
 end
 
 function level:draw_tiles()
@@ -284,28 +284,28 @@ function level:draw_tiles()
     lg.draw(b.sb)
   end
 
-  local active_region_quad = self:getActiveRegion()
+  -- local active_region_quad = self:getActiveRegion()
 
   -- debug all tiles
-  for _, v in ipairs(self.selectable_tiles) do
-    local style = "line"
-    love.graphics.setColor(1, 1, 1, 1)
+  -- for _, v in ipairs(self.selectable_tiles) do
+  --   local style = "line"
+  --   love.graphics.setColor(1, 1, 1, 1)
 
-    -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
-    --   style = "line"
-    -- else
-    --   -- darken the tile
-    --   love.graphics.setColor(0, 0, 0, 0.75)
-    --   style = "fill"
-    -- end
+  --   -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
+  --   --   style = "line"
+  --   -- else
+  --   --   -- darken the tile
+  --   --   love.graphics.setColor(0, 0, 0, 0.75)
+  --   --   style = "fill"
+  --   -- end
 
-    love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
-  end
+  --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
+  -- end
 
   -- debug active viewport
-  local x, y, w, h = active_region_quad:getViewport()
-  lg.setColor(1, 0.2, 0.8, 1)
-  lg.rectangle("line", x, y, w, h)
+  -- local x, y, w, h = active_region_quad:getViewport()
+  -- lg.setColor(1, 0.2, 0.8, 1)
+  -- lg.rectangle("line", x, y, w, h)
 
   lg.pop()
 end
