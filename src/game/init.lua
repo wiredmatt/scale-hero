@@ -1,32 +1,27 @@
+local rs = require "lib.rs"
+local logger = require "src.tool.logger"
+
+rs.conf({ game_width = 1366, game_height = 768, scale_mode = 1 })
+rs.setMode(rs.game_width, rs.game_height, { resizable = true })
+
+local Camera = require "lib.camera"
+
+local cam = Camera(1366, 768)
+
 local Atlas = require "src.tool.atlas"
 local level = require "src.game.level"
 local flux = require "lib.flux"
 
--- canvases to draw specific content to
--- each canvas is drawn to the screen with a different scale
 ---@type love.Canvas
-local tile_canvas = {}      -- ground tiles, obstacles ...
----@type love.Canvas
-local character_canvas = {} -- characters, enemies ...
----@type love.Canvas
-local overlay_canvas = {}   -- indicators ...
----@type love.Canvas
-local gui_canvas = {}       -- buttons and such
+local camera_canvas = {} -- what the camera sees
 
 function love.load()
-  love.window.setMode(_G.SCREEN_WIDTH, _G.SCREEN_HEIGHT,
-    { resizable = true, vsync = true, fullscreen = true })
-
-  -- _G.SCREEN_WIDTH, _G.SCREEN_HEIGHT = love.graphics.getDimensions()
-
   lg.setDefaultFilter("nearest", "nearest")
 
   Atlas.Export() -- generates assets/main_atlas.xml
   Atlas.Load()   -- loads assets/main_atlas.xml into memory, `main_atlas` is now available
 
-  tile_canvas = lg.newCanvas(_G.WIDTH, _G.HEIGHT)
-  character_canvas = lg.newCanvas(_G.WIDTH, _G.HEIGHT)
-  overlay_canvas = lg.newCanvas(_G.WIDTH, _G.HEIGHT)
+  camera_canvas = lg.newCanvas(rs.game_width, rs.game_height)
 
   level:setup()
 end
@@ -34,37 +29,38 @@ end
 -- NOTE(mateo): Order matters!
 function love.draw()
   ---@format disable
-  lg.setCanvas(tile_canvas)
-    lg.clear()
-    level:draw_tiles()
-  lg.setCanvas()
+  cam:attach(0, 0, rs.game_width, rs.game_height)
 
-  lg.setCanvas(character_canvas)
-    lg.clear()
-    level:draw_characters()
-  lg.setCanvas()
+    lg.setCanvas(camera_canvas)
+      lg.clear()
+      level:draw_tiles()
+      level:draw_characters()
+      level:draw_overlays()
+    lg.setCanvas()
 
-  lg.setCanvas(overlay_canvas)
-    lg.clear()
-    level:draw_overlays()
-  lg.setCanvas()
+  cam:detach()
+
+  rs.push()
 
     lg.setColor(1, 1, 1, 1)
     lg.setBlendMode('alpha', 'premultiplied')
-    lg.draw(tile_canvas, 0, 0, 0, _G.TILE_SCALE, _G.TILE_SCALE)
-    lg.draw(character_canvas, 0, 0, 0, _G.CHARACTER_SCALE, _G.CHARACTER_SCALE)
-    lg.draw(overlay_canvas, 0, 0, 0, 1, 1)
+    lg.draw(camera_canvas)
     lg.setBlendMode('alpha')
 
+  rs.pop()
 
-  lg.print(tostring(_G.TILE_SCALE),20,20)
+  local x, y = love.mouse.getPosition()
+
+
+  -- lg.print(tostring(_G.TILE_SCALE),20,20)
+  lg.print(tostring(x) .. ", " .. tostring(y) ,20,20)
+  love.graphics.rectangle("fill", x, y, 20, 20)
 
   ---@format enable
 end
 
-function love.resize(w, h)
-  _G.SCREEN_WIDTH = w
-  _G.SCREEN_HEIGHT = h
+love.resize = function(w, h)
+  rs.resize()
 end
 
 function love.keypressed(k)
@@ -76,9 +72,6 @@ function love.keypressed(k)
     if _G.TILE_SCALE > 2 then
       _G.TILE_SCALE = _G.TILE_SCALE - 1
       level:onScaleChange()
-      -- _G.WIDTH = _G.WIDTH + _G.TILE_SIZE
-      -- _G.HEIGHT = _G.HEIGHT + _G.TILE_SIZE
-      -- level:next() ; 1 = standard terrain ; 2 = terrain with obstacles ; 3 = terrain with environmental stuff...
     end
   end
 
@@ -102,4 +95,9 @@ end
 function love.update(dt)
   flux.update(dt) -- update all tweens
   level:update(dt)
+
+  local current_x, current_y = cam:position()
+
+  logger:debug("CAMERA: ", current_x, current_y)
+  cam:lookAt(rs.game_width / 2, rs.game_height / 2)
 end

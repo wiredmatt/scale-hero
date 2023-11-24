@@ -5,8 +5,10 @@ local Party = require "src.game.ent.Party"
 local Character = require "src.game.ent.Character"
 local uuid = require "lib.uuid"
 local logger = require "src.tool.logger"
+local rs = require "lib.rs"
 
-local mouseX, mouseY = 0, 0
+local _mouseX, _mouseY = 0, 0
+
 
 local level = {
   ---@type Tile[]
@@ -42,8 +44,8 @@ function level:setup()
   end
 
   -- prefill the ground_tiles table with random ground tiles
-  for i = 0, _G.WIDTH, _G.TILE_SIZE do
-    for j = 0, _G.HEIGHT, _G.TILE_SIZE do
+  for i = 0, rs.game_width, _G.TILE_SIZE do
+    for j = 0, rs.game_height, _G.TILE_SIZE do
       if love.math.random(1, 10) < 3 then
         table.insert(self.ground_tiles, Tile("ground_base_2", i, j, TILE_TYPES.ground))
       else
@@ -119,7 +121,7 @@ function level:makeEnemyPartyForScale(on_scale)
 
   for i = 0, w, _G.TILE_SIZE do
     for j = 0, h, _G.TILE_SIZE do
-      if utils.isInQuad(q, i, j, _G.TILE_SIZE * 2, _G.TILE_SIZE * 2) then
+      if utils.isInQuad(q, i, j, _G.TILE_SIZE, _G.TILE_SIZE) then
         local is_valid = true
 
         for _, hero in pairs(hero_party_members) do
@@ -175,18 +177,6 @@ function level:makeEnemyPartyForScale(on_scale)
   end
 
   self.enemy_parties[on_scale] = enemy_party
-
-  -- put the enemies in random positions but avoid placing them on top of heroes
-  -- for _, enemy in pairs(party.members) do
-  --   local enemy_x, enemy_y = 0, 0
-
-  --   -- make a random x and y that is a multiple of the tile size
-
-
-
-  --   enemy.x = enemy_x
-  --   enemy.y = enemy_y
-  -- end
 end
 
 function level:getActiveRegion()
@@ -194,9 +184,11 @@ function level:getActiveRegion()
     return self.current_active_region_q.q
   end
 
-  local x, y, w, h = 0, 0, _G.WIDTH / _G.TILE_SCALE, _G.HEIGHT / _G.TILE_SCALE
+  logger:debug(rs.game_zone.w / _G.TILE_SCALE, rs.game_zone.h / _G.TILE_SCALE)
 
-  local q = lg.newQuad(x, y, w, h, _G.WIDTH, _G.HEIGHT)
+  local x, y, w, h = 0, 0, rs.game_zone.w / _G.TILE_SCALE, rs.game_zone.h / _G.TILE_SCALE
+
+  local q = lg.newQuad(x, y, w, h, 1, 1)
 
   self.current_active_region_q = {
     q = q,
@@ -282,38 +274,40 @@ end
 function level:draw_tiles()
   lg.setColor(1, 1, 1, 1)
 
+  lg.push()
+
+  lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
+
+
   for _, name in pairs(Atlas.ground_keys) do
     local b = self.batches[name]
     lg.draw(b.sb)
   end
 
-  -- local active_region_quad = self:getActiveRegion()
+  local active_region_quad = self:getActiveRegion()
 
   -- debug all tiles
-  -- for _, v in ipairs(self.selectable_tiles) do
-  --   local style = "line"
-  --   love.graphics.setColor(1, 1, 1, 1)
+  for _, v in ipairs(self.selectable_tiles) do
+    local style = "line"
+    love.graphics.setColor(1, 1, 1, 1)
 
-  --   -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
-  --   --   style = "line"
-  --   -- else
-  --   --   -- darken the tile
-  --   --   love.graphics.setColor(0, 0, 0, 0.75)
-  --   --   style = "fill"
-  --   -- end
+    -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
+    --   style = "line"
+    -- else
+    --   -- darken the tile
+    --   love.graphics.setColor(0, 0, 0, 0.75)
+    --   style = "fill"
+    -- end
 
-  --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- end
+    love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
+  end
 
   -- debug active viewport
-  -- local x, y, w, h = active_region_quad:getViewport()
-  -- lg.setColor(1, 0.2, 0.8, 1)
-  -- lg.rectangle("line", x, y, w, h)
+  local x, y, w, h = active_region_quad:getViewport()
+  lg.setColor(1, 0.2, 0.8, 1)
+  lg.rectangle("line", x, y, w, h)
 
-  -- local mouseX, mouseY = love.mouse.getPosition()
-  -- local correctedMouseX, correctedMouseY = (mouseX / _G.TILE_SCALE), (mouseY / _G.TILE_SCALE)
-  -- debug mouse position
-  -- love.graphics.rectangle("fill", correctedMouseX, correctexMouseY, 0.25, 0.25)
+  lg.pop()
 end
 
 function level:draw_characters()
@@ -337,8 +331,6 @@ function level:draw_overlays()
     )
     lg.pop()
   end
-
-  love.graphics.rectangle("fill", mouseX, mouseY, 20, 20)
 end
 
 ---@param x number
@@ -347,17 +339,38 @@ end
 ---@param dy number
 ---@param istouch boolean
 function level:mousemoved(x, y, dx, dy, istouch)
-  mouseX, mouseY = (x), (y)
+  _mouseX, _mouseY = x, y
 
 
-  local offsetX, offsetY = (x / _G.TILE_SCALE), (y / _G.TILE_SCALE)
+  -- If cursor is outside of x, y, w, h position, then return it inside
+  -- game zone.
+
+  -- Left side.
+  if _mouseX < rs.game_zone.x then
+    _mouseX = rs.game_zone.x
+  end
+
+  -- Right side.
+  if _mouseX > rs.game_zone.x + rs.game_zone.w then
+    _mouseX = rs.game_zone.x + rs.game_zone.w
+  end
+
+  -- Top side.
+  if _mouseY < rs.game_zone.y then
+    _mouseY = rs.game_zone.y
+  end
+
+  -- Bottom side.
+  if _mouseY > rs.game_zone.y + rs.game_zone.h then
+    _mouseY = rs.game_zone.y + rs.game_zone.h
+  end
 
 
   -- check if the mouse position is still inside the previously selected tile, to avoid looping again unnecesarily
   if self.hovered_tile ~= nil then
     local tileQuad = lg.newQuad(self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, offsetX, offsetY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, _mouseX, _mouseY, 0.25, 0.25) then
       return
     end
   end
@@ -365,11 +378,14 @@ function level:mousemoved(x, y, dx, dy, istouch)
   for _, v in ipairs(self.selectable_tiles) do
     local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, offsetX, offsetY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, _mouseX, _mouseY, 0.25, 0.25) then
       self.hovered_tile = v
       break
     end
   end
+
+  _G.mouseX = _mouseX
+  _G.mouseY = _mouseY
 end
 
 function level:onScaleChange()

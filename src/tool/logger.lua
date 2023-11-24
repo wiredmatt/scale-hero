@@ -16,28 +16,32 @@ local logger = {
   }
 }
 
-function logger:log(text)
+---@param ... any
+function logger:log(...)
   print({
     __PREFIX__ = self.colors.info
-  }, text)
+  }, ...)
 end
 
-function logger:debug(text)
+---@param ... any
+function logger:debug(...)
   print({
     __PREFIX__ = self.colors.debug .. self.levels.debug
-  }, text)
+  }, ...)
 end
 
-function logger:warn(text)
+---@param ... any
+function logger:warn(...)
   print({
     __PREFIX__ = self.colors.warn .. self.levels.warn
-  }, text)
+  }, ...)
 end
 
-function logger:error(text)
+---@param ... any
+function logger:error(...)
   print({
     __PREFIX__ = self.colors.error .. self.levels.error
-  }, text)
+  }, ...)
 end
 
 return logger

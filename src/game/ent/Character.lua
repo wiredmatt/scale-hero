@@ -155,23 +155,14 @@ end
 ---@return number kx
 ---@return number ky
 function Character:getDrawArgs()
-  local fixed_scale = (_G.CHARACTER_SCALE >= 0.6 and _G.CHARACTER_SCALE or 1)
-
   ---@format disable
   return self.sprite,
-      (self.x * _G.TILE_SCALE / fixed_scale) +
-      (_G.TILE_SIZE * _G.TILE_SCALE / 2 / fixed_scale) -
-      (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
-
-      (self.y * _G.TILE_SCALE / fixed_scale) +
-      (_G.TILE_SIZE * _G.TILE_SCALE / 2 / fixed_scale) -
-      (_G.TILE_SCALE > 3 and _G.TILE_SIZE or _G.TILE_SIZE / 1.5),
-
-      self.rotation,
-
-      self.sx, self.sy,
-      self.ox, self.oy,
-      self.kx, self.ky
+         self.x,
+         self.y,
+         self.rotation,
+         self.sx, self.sy,
+         self.ox, self.oy,
+         self.kx, self.ky
   ---@format enable
 end
 
