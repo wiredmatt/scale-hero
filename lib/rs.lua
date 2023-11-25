@@ -266,10 +266,10 @@ rs.is_it_inside = function(it_x, it_y)
   local x, y, w, h = rs.game_zone.x, rs.game_zone.y, rs.game_zone.w, rs.game_zone.h
 
   -- Check if it inside game zone.
-  if it_x >= x and                    -- left
-      it_y >= y and                   -- top
-      it_x <= x + w and               -- right
-      it_y <= y + h then              -- bottom
+  if it_x >= x and       -- left
+      it_y >= y and      -- top
+      it_x <= x + w and  -- right
+      it_y <= y + h then -- bottom
     -- It inside game zone.
     return true
   end
@@ -283,17 +283,11 @@ rs.get_both_scales = function()
   return rs.scale_width, rs.scale_height
 end
 
+---@return number
+---@return number
 rs.to_game = function(x, y)
-  -- User passed only X.
-  if type(x) == "number" and type(y) == "nil" then
-    return (x - rs.x_offset) / rs.scale_width
-
-    -- User passed only Y.
-  elseif type(x) == "nil" and type(y) == "number" then
-    return (y - rs.y_offset) / rs.scale_height
-
-    -- User passed both X and Y.
-  elseif type(x) == "number" and type(y) == "number" then
+  -- User passed both X and Y.
+  if type(x) == "number" and type(y) == "number" then
     return (x - rs.x_offset) / rs.scale_width, (y - rs.y_offset) / rs.scale_height
 
     -- User passed wrong arguments.
@@ -302,17 +296,11 @@ rs.to_game = function(x, y)
   end
 end
 
+---@return number
+---@return number
 rs.to_window = function(x, y)
   -- User passed only X.
-  if type(x) == "number" and type(y) == "nil" then
-    return (x * rs.scale_width) + rs.x_offset
-
-    -- User passed only Y.
-  elseif type(x) == "nil" and type(y) == "number" then
-    return (y * rs.scale_height) + rs.y_offset
-
-    -- User passed both X and Y.
-  elseif type(x) == "number" and type(y) == "number" then
+  if type(x) == "number" and type(y) == "number" then
     return (x * rs.scale_width) + rs.x_offset, (y * rs.scale_height) + rs.y_offset
 
     -- User passed wrong arguments.

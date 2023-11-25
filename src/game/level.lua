@@ -275,34 +275,42 @@ function level:draw_tiles()
 
   lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
 
-
   for _, name in pairs(Atlas.ground_keys) do
     local b = self.batches[name]
     lg.draw(b.sb)
   end
 
-  -- local active_region_quad = self:getActiveRegion()
+  local active_region_quad = self:getActiveRegion()
 
   -- debug all tiles
-  -- for _, v in ipairs(self.selectable_tiles) do
-  --   local style = "line"
-  --   love.graphics.setColor(1, 1, 1, 1)
+  for _, v in ipairs(self.selectable_tiles) do
+    local style = "line"
+    love.graphics.setColor(1, 1, 1, 1)
 
-  --   -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
-  --   --   style = "line"
-  --   -- else
-  --   --   -- darken the tile
-  --   --   love.graphics.setColor(0, 0, 0, 0.75)
-  --   --   style = "fill"
-  --   -- end
+    -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
+    --   style = "line"
+    -- else
+    --   -- darken the tile
+    --   love.graphics.setColor(0, 0, 0, 0.75)
+    --   style = "fill"
+    -- end
 
-  --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
-  -- end
+    love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
+  end
+
+  if self.hovered_tile ~= nil then
+    Atlas.lib.drawSprite(
+      SPRITE_NAMES.indicator_base,
+      self.hovered_tile.x,
+      self.hovered_tile.y,
+      0
+    )
+  end
 
   -- debug active viewport
-  -- local x, y, w, h = active_region_quad:getViewport()
-  -- lg.setColor(1, 0.2, 0.8, 1)
-  -- lg.rectangle("line", x, y, w, h)
+  local x, y, w, h = active_region_quad:getViewport()
+  lg.setColor(1, 0.2, 0.8, 1)
+  lg.rectangle("line", x, y, w, h)
 
   lg.pop()
 end
@@ -318,26 +326,16 @@ end
 function level:draw_overlays()
   lg.setColor(1, 1, 1, 1)
   lg.rectangle("fill", _G.mouseX, _G.mouseY, _G.TILE_SIZE, _G.TILE_SIZE)
-
-  if self.hovered_tile ~= nil then
-    lg.push()
-    lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
-
-    Atlas.lib.drawSprite(
-      SPRITE_NAMES.indicator_base,
-      self.hovered_tile.x,
-      self.hovered_tile.y
-    )
-    lg.pop()
-  end
 end
 
 function level:mousemoved()
+  local gameMouseX, gameMouseY = rs.to_game(_G.mouseX, _G.mouseY)
+
   -- check if the mouse position is still inside the previously selected tile, to avoid looping again unnecesarily
   if self.hovered_tile ~= nil then
     local tileQuad = lg.newQuad(self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, _G.mouseX / _G.TILE_SCALE, _G.mouseY / _G.TILE_SCALE, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, gameMouseX / _G.TILE_SCALE, gameMouseY / _G.TILE_SCALE, 0.25, 0.25) then
       return
     end
   end
@@ -345,7 +343,7 @@ function level:mousemoved()
   for _, v in ipairs(self.selectable_tiles) do
     local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, _G.mouseX / _G.TILE_SCALE, _G.mouseY / _G.TILE_SCALE, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, gameMouseX / _G.TILE_SCALE, gameMouseY / _G.TILE_SCALE, 0.25, 0.25) then
       self.hovered_tile = v
       break
     end
