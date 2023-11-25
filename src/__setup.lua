@@ -1,4 +1,4 @@
-_G.INITIAL_TILE_SCALE = 24
+_G.INITIAL_TILE_SCALE = 25
 _G.INITIAL_CHARACTER_SCALE = 2.5
 
 _G.TILE_SIZE = 16
@@ -9,7 +9,7 @@ _G.mouseX = 0
 _G.mouseY = 0
 
 _G.SCALES = { -- levels
-  [24] = true,
+  [_G.INITIAL_TILE_SCALE] = true,
   [16] = true,
   [12] = true,
   [9] = true,

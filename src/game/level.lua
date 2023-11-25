@@ -7,9 +7,6 @@ local uuid = require "lib.uuid"
 local logger = require "src.tool.logger"
 local rs = require "lib.rs"
 
-local _mouseX, _mouseY = 0, 0
-
-
 local level = {
   ---@type Tile[]
   ground_tiles = {},     -- all ground tiles
@@ -320,10 +317,12 @@ end
 
 function level:draw_overlays()
   lg.setColor(1, 1, 1, 1)
+  lg.rectangle("fill", _G.mouseX, _G.mouseY, _G.TILE_SIZE, _G.TILE_SIZE)
 
   if self.hovered_tile ~= nil then
     lg.push()
     lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
+
     Atlas.lib.drawSprite(
       SPRITE_NAMES.indicator_base,
       self.hovered_tile.x,
@@ -333,44 +332,12 @@ function level:draw_overlays()
   end
 end
 
----@param x number
----@param y number
----@param dx number
----@param dy number
----@param istouch boolean
-function level:mousemoved(x, y, dx, dy, istouch)
-  _mouseX, _mouseY = x, y
-
-
-  -- If cursor is outside of x, y, w, h position, then return it inside
-  -- game zone.
-
-  -- Left side.
-  if _mouseX < rs.game_zone.x then
-    _mouseX = rs.game_zone.x
-  end
-
-  -- Right side.
-  if _mouseX > rs.game_zone.x + rs.game_zone.w then
-    _mouseX = rs.game_zone.x + rs.game_zone.w
-  end
-
-  -- Top side.
-  if _mouseY < rs.game_zone.y then
-    _mouseY = rs.game_zone.y
-  end
-
-  -- Bottom side.
-  if _mouseY > rs.game_zone.y + rs.game_zone.h then
-    _mouseY = rs.game_zone.y + rs.game_zone.h
-  end
-
-
+function level:mousemoved()
   -- check if the mouse position is still inside the previously selected tile, to avoid looping again unnecesarily
   if self.hovered_tile ~= nil then
     local tileQuad = lg.newQuad(self.hovered_tile.x, self.hovered_tile.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, _mouseX, _mouseY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, _G.mouseX / _G.TILE_SCALE, _G.mouseY / _G.TILE_SCALE, 0.25, 0.25) then
       return
     end
   end
@@ -378,14 +345,11 @@ function level:mousemoved(x, y, dx, dy, istouch)
   for _, v in ipairs(self.selectable_tiles) do
     local tileQuad = lg.newQuad(v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE, 1, 1)
 
-    if utils.isInQuad(tileQuad, _mouseX, _mouseY, 0.25, 0.25) then
+    if utils.isInQuad(tileQuad, _G.mouseX / _G.TILE_SCALE, _G.mouseY / _G.TILE_SCALE, 0.25, 0.25) then
       self.hovered_tile = v
       break
     end
   end
-
-  _G.mouseX = _mouseX
-  _G.mouseY = _mouseY
 end
 
 function level:onScaleChange()

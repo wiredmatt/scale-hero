@@ -2,7 +2,7 @@ local rs = require "lib.rs"
 local logger = require "src.tool.logger"
 
 rs.conf({ game_width = 1366, game_height = 768, scale_mode = 1 })
-rs.setMode(rs.game_width, rs.game_height, { resizable = true })
+rs.setMode(rs.game_width, rs.game_height, { resizable = true, fullscreen = true })
 
 local Camera = require "lib.camera"
 
@@ -35,7 +35,6 @@ function love.draw()
       lg.clear()
       level:draw_tiles()
       level:draw_characters()
-      level:draw_overlays()
     lg.setCanvas()
 
   cam:detach()
@@ -49,8 +48,7 @@ function love.draw()
 
   rs.pop()
 
-  -- local x, y = love.mouse.getPosition()
-
+  level:draw_overlays()
 
   -- lg.print(tostring(_G.TILE_SCALE),20,20)
   -- lg.print(tostring(x) .. ", " .. tostring(y) ,20,20)
@@ -89,7 +87,36 @@ function love.keypressed(k)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
-  level:mousemoved(x, y, dx, dy, istouch)
+  local _mouseX = x
+  local _mouseY = y
+
+  -- If cursor is outside of x, y, w, h position, then return it inside
+  -- game zone.
+
+  -- Left side.
+  if _mouseX < rs.game_zone.x then
+    _mouseX = rs.game_zone.x
+  end
+
+  -- Right side.
+  if _mouseX > rs.game_zone.x + rs.game_zone.w then
+    _mouseX = rs.game_zone.x + rs.game_zone.w
+  end
+
+  -- Top side.
+  if _mouseY < rs.game_zone.y then
+    _mouseY = rs.game_zone.y
+  end
+
+  -- Bottom side.
+  if _mouseY > rs.game_zone.y + rs.game_zone.h then
+    _mouseY = rs.game_zone.y + rs.game_zone.h
+  end
+
+  _G.mouseX = _mouseX
+  _G.mouseY = _mouseY
+
+  level:mousemoved()
 end
 
 function love.update(dt)
