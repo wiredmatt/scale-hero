@@ -123,8 +123,5 @@ function love.update(dt)
   flux.update(dt) -- update all tweens
   level:update(dt)
 
-  local current_x, current_y = cam:position()
-
-  logger:debug("CAMERA: ", current_x, current_y)
   cam:lookAt(rs.game_width / 2, rs.game_height / 2)
 end
