@@ -25,7 +25,7 @@ ActionAnimation = {
   get_hit_y = "get_hit_y"
 }
 
----@enum AtlasKey
+---@enum SpriteName
 SpriteName = {
   -- start ground tiles
   ground_base_1 = "ground_base_1",

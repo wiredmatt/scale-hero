@@ -1,5 +1,4 @@
--- _G.lg = love.graphics -- cache love.graphics
-
+_G.lg = love.graphics -- cache love.graphics
 
 _G.INITIAL_TILE_SCALE = 24
 _G.INITIAL_CHARACTER_SCALE = 2.5
@@ -22,19 +21,6 @@ _G.SCALES = { -- levels
   [3] = true,
 }
 
-table.exists = function(t, v)
-  for _, _v in ipairs(t) do
-    if _v == v then
-      return true
-    end
-  end
-
-  return false
-end
-
-require("lib.uuid").seed()
-
-
 _G.print = require("lib.pprint") -- override the default print function to be able to pretty print tables
 print.setup({
   wrap_string = false
@@ -44,3 +30,6 @@ print.setup({
 _G.Timer = require("lib.timer") -- override the default timer to be able to use it in a more convenient way
 
 _G.actionTimer = Timer.new()
+
+
+require("lib.uuid").seed()

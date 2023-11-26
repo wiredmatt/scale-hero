@@ -146,7 +146,7 @@ function Character:new(sprite, x, y, default_animation)
   self.current_animation = self.default_animation
 end
 
----@return AtlasKey atlas_key
+---@return SpriteName sprite_name
 ---@return number x
 ---@return number y
 ---@return number r
