@@ -69,7 +69,7 @@ function level:setup()
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
-      [uuid()] = Enemies.Cacti(32, 16),
+      [uuid()] = Enemies.Cacti(16, 0),
     }),
     [16] = Party({}),
     [12] = Party({}),
@@ -341,6 +341,7 @@ end
 
 function level:wait_attack(wait, from, to, attack_id)
   local hero_bob = (function() for _, character in pairs(self.hero_party.members) do if character.sprite == "hero_bob" then return character end end end)()
+  local enemy = (function() for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do return enemy end end)()
 
   print("here before doing action")
 
@@ -357,6 +358,7 @@ function level:wait_attack(wait, from, to, attack_id)
 
   wait(time_to_hit_signal)
   -- do something after the hit signal is emitted
+  enemy:doAction(ActionAnimation.get_hit_x)
 
   print("here after :o")
 end
