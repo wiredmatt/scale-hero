@@ -7,6 +7,7 @@ local uuid = require "lib.uuid"
 local logger = require "src.tool.logger"
 local rs = require "lib.rs"
 local Enemies = require "src.game.ent.enemies"
+local Heroes  = require "src.game.ent.heroes"
 
 ---@class Level
 local level = {
@@ -32,9 +33,9 @@ local level = {
 
 function level:setup()
   -- generate the spritebatches for each tile we want to draw
-  for _, v in ipairs(Atlas.ground_keys) do
-    local img, q = Atlas.lib.getSprite(v)
-    self.batches[v] = {
+  for _, spritename in ipairs(Atlas.ground_keys) do
+    local img, q = Atlas.lib.getSprite(spritename)
+    self.batches[spritename] = {
       sb = lg.newSpriteBatch(img, 2000),
       quad = q
     }
@@ -51,11 +52,11 @@ function level:setup()
     end
   end
 
-  -- generate the spritebatches for each enemy character we want to draw
-  for _, v in ipairs(Atlas.character_keys) do
-    local img, q = Atlas.lib.getSprite(v)
+  -- generate the spritebatches for each character we want to draw
+  for _, spritename in ipairs(Atlas.character_keys) do
+    local img, q = Atlas.lib.getSprite(spritename)
 
-    self.batches[v] = {
+    self.batches[spritename] = {
       sb = lg.newSpriteBatch(img, 2000),
       quad = q
     }
@@ -63,7 +64,7 @@ function level:setup()
 
   self.hero_party = Party(
     {
-      [uuid()] = Character("hero_bob", 0, 0),
+      [uuid()] = Heroes.Bob(0, 0)
     }
   )
 
