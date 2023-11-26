@@ -239,9 +239,7 @@ function level:setupTileSpriteBatches()
     return
   end
 
-
   self:getActiveRegion()
-
 
   ---@type Tile[]
   local __selectable_tiles = {}

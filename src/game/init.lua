@@ -2,7 +2,7 @@ local rs = require "lib.rs"
 local logger = require "src.tool.logger"
 
 rs.conf({ game_width = 1366, game_height = 768, scale_mode = 1 })
-rs.setMode(rs.game_width, rs.game_height, { resizable = true, fullscreen = true })
+rs.setMode(rs.game_width, rs.game_height, { resizable = true, fullscreen = false })
 
 local Camera = require "lib.camera"
 

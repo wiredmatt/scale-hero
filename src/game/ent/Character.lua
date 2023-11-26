@@ -157,8 +157,8 @@ end
 function Character:getDrawArgs()
   ---@format disable
   return self.sprite,
-         self.x,
-         self.y,
+         (self.x * _G.TILE_SCALE) + (_G.TILE_SIZE * _G.TILE_SCALE / 2) - (_G.TILE_SIZE),
+         (self.y * _G.TILE_SCALE) + (_G.TILE_SIZE * _G.TILE_SCALE / 2) - (_G.TILE_SIZE),
          self.rotation,
          self.sx, self.sy,
          self.ox, self.oy,
