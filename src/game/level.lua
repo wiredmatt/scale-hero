@@ -344,7 +344,19 @@ function level:wait_attack(wait, from, to, attack_id)
 
   print("here before doing action")
 
-  wait(hero_bob:doAction(ActionAnimation.hit_right))
+  -- todo: get signals from attack_id, for now we assume it's only `hit`
+  -- local attack = self.attacks[attack_id]
+  -- local attack_signals = attack.signals
+
+  local total, signals = hero_bob:doAction(ActionAnimation.hit_right)
+
+  local time_to_hit_signal = signals["hit"] -- todo: change to `signals[attack_signals[i]]`
+
+  print('total time is: ' .. total)
+  print('time to `hit` is: ' .. time_to_hit_signal)
+
+  wait(time_to_hit_signal)
+  -- do something after the hit signal is emitted
 
   print("here after :o")
 end

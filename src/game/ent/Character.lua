@@ -32,7 +32,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.2, value = { x = self.x + _G.TILE_SIZE / 2 } },
+      { t = self, duration = 0.2, value = { x = self.x + _G.TILE_SIZE / 2 }, signal = "hit" },
       { t = self, duration = 0.5, value = { x = self.x - 0.5 } },
       { t = self, duration = 0, value = { x = self.x } },
       { t = self, duration = 0.5, value = { ky = 0 } }
@@ -41,7 +41,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.2, value = { x = self.x - _G.TILE_SIZE / 2 } },
+      { t = self, duration = 0.2, value = { x = self.x - _G.TILE_SIZE / 2 }, signal = "hit" },
       { t = self, duration = 0.5, value = { x = self.x + 0.5 } },
       { t = self, duration = 0, value = { x = self.x } },
       { t = self, duration = 0.5, value = { ky = 0 } }
@@ -50,7 +50,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.1, value = { y = self.y + _G.TILE_SIZE / 2 } },
+      { t = self, duration = 0.1, value = { y = self.y + _G.TILE_SIZE / 2 }, signal = "hit" },
       { t = self, duration = 1, value = { y = self.y - 0.2 } },
       { t = self, duration = 0, value = { y = self.y } },
       { t = self, duration = 0.5, value = { ky = 0 } }
@@ -59,7 +59,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.1, value = { y = self.y - _G.TILE_SIZE / 2 } },
+      { t = self, duration = 0.1, value = { y = self.y - _G.TILE_SIZE / 2 }, signal = "hit" },
       { t = self, duration = 1, value = { y = self.y + 0.2 } },
       { t = self, duration = 0, value = { y = self.y } },
       { t = self, duration = 0.5, value = { ky = 0 } }
@@ -70,7 +70,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 } },
+      { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 }, signal = "hit" },
       { t = self, duration = 1, value = { y = self.y - 0.2, x = self.x - 0.2 } },
       { t = self, duration = 0, value = { y = self.y, x = self.x } },
       { t = self, duration = 1, value = { ky = 0 } }
@@ -81,7 +81,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 } },
+      { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 }, signal = "hit" },
       { t = self, duration = 1, value = { y = self.y + 0.2, x = self.x + 0.2 } },
       { t = self, duration = 0, value = { y = self.y, x = self.x } },
       { t = self, duration = 1, value = { ky = 0 } }
@@ -92,7 +92,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 } },
+      { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 }, signal = "hit" },
       { t = self, duration = 1, value = { y = self.y + 0.2, x = self.x + 0.2 } },
       { t = self, duration = 0, value = { y = self.y, x = self.x } },
       { t = self, duration = 1, value = { ky = 0 } }
@@ -103,7 +103,7 @@ function Character:new(sprite, x, y, default_animation)
       AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
-      { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 } },
+      { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 }, signal = "hit" },
       { t = self, duration = 1, value = { y = self.y + 0.2, x = self.x - 0.2 } },
       { t = self, duration = 0, value = { y = self.y, x = self.x } },
       { t = self, duration = 1, value = { ky = 0 } }
@@ -197,16 +197,12 @@ function Character:update(dt)
 end
 
 ---@param action ActionAnimation
-function Character:doAction(action)
-  local duration = self.animations[action].duration
-  -- TODO: Return the duration it takes to reach the key keyframe when something important actually happens
-  -- example: when the player hits an enemy, the enemy should be able to react to the hit at the exact moment
-  -- local duration = self.animations[action]:getDurationToKeyframe(self.animations[action].key_keyframe)
-  -- another approach would be to have two separate animations:
-  --  1. the actual hit animation, where the last keyframe is the one where the hit happens
-  --  2. the traceback animation, where the player comes back to the original position
+function Character:doAction(action, signal)
+  local anim = self.animations[action]
+  local total_duration = anim.duration
+
   self:setAnimation(action)
-  return duration
+  return total_duration, anim.signals
 end
 
 return Character

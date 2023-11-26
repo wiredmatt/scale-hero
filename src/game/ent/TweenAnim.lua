@@ -5,6 +5,8 @@ local WithID = require "src.game.ent.WithID"
 ---@field t table
 ---@field duration number
 ---@field value table
+---@field signal string|nil
+---@field signals_at number|nil
 
 ---@class TweenAnim : WithID
 ---@overload fun(mode: AnimationType,... : Flux.TweenArgs) : TweenAnim
@@ -28,8 +30,16 @@ function TweenAnim:new(mode, ...)
 
   self.duration = 0
 
+  ---@type table<string, number>
+  self.signals = {}
+
   for _, tween in ipairs(self.tweens) do
     self.duration = self.duration + tween.duration
+
+    if tween.signal ~= nil then
+      tween.signals_at = self.duration -- where the signal should be emitted, i.e do damage to an enemy, etc.
+      self.signals[tween.signal] = tween.signals_at
+    end
   end
 
   if self.mode == AnimationType.once then
