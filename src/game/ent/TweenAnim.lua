@@ -33,6 +33,10 @@ function TweenAnim:new(mode, ...)
   for _, tween in ipairs(self.tweens) do
     self.duration = self.duration + tween.duration
   end
+
+  if self.mode == AnimationType.once then
+    self:prepare()
+  end
 end
 
 function TweenAnim:setMode(mode)
@@ -67,7 +71,7 @@ function TweenAnim:reset()
 end
 
 function TweenAnim:play(dt)
-  if #self.group == 0 and self.mode == ANIMATION_TYPE.once then
+  if #self.group == 0 and self.mode == AnimationType.once then
     self.played_once = true
     return
   end

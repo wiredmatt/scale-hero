@@ -6,8 +6,9 @@ local Character = require "src.game.ent.Character"
 local uuid = require "lib.uuid"
 local logger = require "src.tool.logger"
 local rs = require "lib.rs"
-local EnemyCacti = require "src.game.ent.enemies.EnemyCacti"
+local Enemies = require "src.game.ent.enemies"
 
+---@class Level
 local level = {
   ---@type Tile[]
   ground_tiles = {},     -- all ground tiles
@@ -43,9 +44,9 @@ function level:setup()
   for i = 0, rs.game_width, _G.TILE_SIZE do
     for j = 0, rs.game_height, _G.TILE_SIZE do
       if love.math.random(1, 10) < 3 then
-        table.insert(self.ground_tiles, Tile("ground_base_2", i, j, TILE_TYPES.ground))
+        table.insert(self.ground_tiles, Tile("ground_base_2", i, j, TileType.ground))
       else
-        table.insert(self.ground_tiles, Tile("ground_base_1", i, j, TILE_TYPES.ground))
+        table.insert(self.ground_tiles, Tile("ground_base_1", i, j, TileType.ground))
       end
     end
   end
@@ -63,14 +64,12 @@ function level:setup()
   self.hero_party = Party(
     {
       [uuid()] = Character("hero_bob", 0, 0),
-      -- [uuid()] = Character("hero_knight", 16, 0),
-      -- [uuid()] = Character("hero_knight", 32, 0),
     }
   )
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
-      [uuid()] = EnemyCacti(32, 16),
+      [uuid()] = Enemies.Cacti(32, 16),
     }),
     [16] = Party({}),
     [12] = Party({}),
@@ -261,7 +260,7 @@ function level:draw_tiles()
 
     if self.hovered_tile ~= nil then
       Atlas.lib.drawSprite(
-        SPRITE_NAMES.indicator_base,
+        SpriteName.indicator_base,
         self.hovered_tile.x,
         self.hovered_tile.y,
         0
@@ -323,10 +322,59 @@ function level:mousemoved()
   end
 end
 
+function level:mousepressed(button)
+  if button == 1 then
+    -- if self.hovered_tile ~= nil then
+    --   self.hero_party:moveTo(self.hovered_tile.x, self.hovered_tile.y)
+    -- end
+
+    self:wait_attack()
+  end
+end
+
 function level:onScaleChange()
   if _G.SCALES[_G.TILE_SCALE] == true then
     self:makeEnemyPartyForScale(_G.TILE_SCALE)
   end
 end
 
-return level
+
+function level:wait_attack(wait, from, to, attack_id)
+  local hero_bob = (function() for _, character in pairs(self.hero_party.members) do if character.sprite == "hero_bob" then return character end end end)()
+
+  print("here before doing action")
+
+  wait(hero_bob:doAction(ActionAnimation.hit_right))
+
+  print("here after :o")
+end
+
+level.__index = level
+
+---@type Level
+local proxy = {}
+setmetatable(proxy, {
+  __index = function(_, k)
+    local member = level[k] -- member can be a function or a property
+
+    if type(member) ~= "function" then
+      return member
+    end
+
+    local func = member -- member is a function
+
+    return function(t, ...)
+      local args = {...}
+
+      if k:find("^wait_") ~= nil then
+        return actionTimer:script(function(wait)
+          func(t, wait, unpack(args))
+        end)
+      else
+        return func(t, unpack(args))
+      end
+    end
+  end
+})
+
+return proxy

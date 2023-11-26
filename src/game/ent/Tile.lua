@@ -13,7 +13,7 @@ local Tile = Base:extend()
 ---@overload fun(self, sprite: string, x: number, y: number, type: TileType, w: number, h: number)
 function Tile:new(sprite, x, y, type, w, h)
   Tile.super.new(self, sprite, x, y, w or _G.TILE_SIZE, h or _G.TILE_SIZE)
-  self.type = type or TILE_TYPES.ground
+  self.type = type or TileType.ground
 end
 
 return Tile

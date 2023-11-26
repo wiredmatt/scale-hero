@@ -1,15 +1,15 @@
-local Character = require "src.game.ent.Character"
+local Enemy = require "src.game.ent.enemies.Enemy"
 require("src.game.enum")
 
----@class EnemyCacti : Character
----@field super Character
+---@class EnemyCacti : Enemy
+---@field super Enemy
 ---@overload fun(x: number, y: number)
-local EnemyCacti = Character:extend()
+local EnemyCacti = Enemy:extend()
 
 ---@param x number
 ---@param y number
 function EnemyCacti:new(x, y)
-  EnemyCacti.super.new(self, SPRITE_NAMES.enemy_cacti, x, y)
+  EnemyCacti.super.new(self, SpriteName.enemy_cacti, x, y)
 end
 
 return EnemyCacti

@@ -1,17 +1,32 @@
 ---@enum TileType
-TILE_TYPES = {
+TileType = {
   ground = 0,
   wall = 1,
 }
 
 ---@enum AnimationType
-ANIMATION_TYPE = {
+AnimationType = {
   loop = 0,
   once = 1,
 }
 
+---@enum ActionAnimation
+ActionAnimation = {
+  idle_base = "idle_base",
+  hit_right = "hit_right",
+  hit_left = "hit_left",
+  hit_down = "hit_down",
+  hit_up = "hit_up",
+  hit_down_right = "hit_down_right",
+  hit_down_left = "hit_down_left",
+  hit_up_left = "hit_up_left",
+  hit_up_right = "hit_up_right",
+  get_hit_x = "get_hit_x",
+  get_hit_y = "get_hit_y"
+}
+
 ---@enum AtlasKey
-SPRITE_NAMES = {
+SpriteName = {
   -- start ground tiles
   ground_base_1 = "ground_base_1",
   ground_base_2 = "ground_base_2",

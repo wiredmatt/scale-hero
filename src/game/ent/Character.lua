@@ -2,6 +2,7 @@ local Base      = require "src.game.ent.Base"
 local TweenAnim = require "src.game.ent.TweenAnim"
 local logger    = require "src.tool.logger"
 local pprint    = require "lib.pprint"
+local timer = require "lib.timer"
 
 ---@class Character : Base
 ---@field super Base
@@ -21,7 +22,7 @@ function Character:new(sprite, x, y, default_animation)
   self.animations = {
     --- [[ BASE ANIMATIONS ]]
     ["idle_base"] = TweenAnim(
-      ANIMATION_TYPE.loop,
+      AnimationType.loop,
 
       { t = self, duration = 0.3, value = { sy = self.sy + 0.1 } },
       { t = self, duration = 0.3, value = { sy = self.sy - 0.1 } }
@@ -30,7 +31,7 @@ function Character:new(sprite, x, y, default_animation)
 
     --- [[ ATTACK ANIMATIONS ]]
     ["hit_right"] = TweenAnim(
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.2, value = { x = self.x + _G.TILE_SIZE / 2 } },
@@ -39,7 +40,7 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 0.5, value = { ky = 0 } }
     ),
     ["hit_left"] = TweenAnim(
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.2, value = { x = self.x - _G.TILE_SIZE / 2 } },
@@ -48,7 +49,7 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 0.5, value = { ky = 0 } }
     ),
     ["hit_down"] = TweenAnim(
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.1, value = { y = self.y + _G.TILE_SIZE / 2 } },
@@ -57,7 +58,7 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 0.5, value = { ky = 0 } }
     ),
     ["hit_up"] = TweenAnim(
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.1, value = { y = self.y - _G.TILE_SIZE / 2 } },
@@ -68,7 +69,7 @@ function Character:new(sprite, x, y, default_animation)
 
 
     ["hit_down_right"] = TweenAnim( -- diagonal down right
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 } },
@@ -79,7 +80,7 @@ function Character:new(sprite, x, y, default_animation)
 
 
     ["hit_down_left"] = TweenAnim( -- diagonal down left
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.2, value = { y = self.y + _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 } },
@@ -90,7 +91,7 @@ function Character:new(sprite, x, y, default_animation)
 
 
     ["hit_up_left"] = TweenAnim( -- diagonal up left
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x - _G.TILE_SCALE / 2 } },
@@ -101,7 +102,7 @@ function Character:new(sprite, x, y, default_animation)
 
 
     ["hit_up_right"] = TweenAnim( -- diagonal up left
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0, value = { ky = 0.1 } },
       { t = self, duration = 0.2, value = { y = self.y - _G.TILE_SIZE / 2, x = self.x + _G.TILE_SCALE / 2 } },
@@ -113,7 +114,7 @@ function Character:new(sprite, x, y, default_animation)
 
     --- [[ EFFECT ANIMATIONS ]]
     ["get_hit_x"] = TweenAnim(
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0.05, value = { x = self.x - 0.25 } },
       { t = self, duration = 0.05, value = { x = self.x + 0.25 } },
@@ -127,7 +128,7 @@ function Character:new(sprite, x, y, default_animation)
       { t = self, duration = 0, value = { x = self.x } }
     ),
     ["get_hit_y"] = TweenAnim(
-      ANIMATION_TYPE.once,
+      AnimationType.once,
 
       { t = self, duration = 0.05, value = { y = self.y - 0.25 } },
       { t = self, duration = 0.05, value = { y = self.y + 0.25 } },
@@ -171,7 +172,7 @@ function Character:updateAnimation(dt)
   if self.current_animation ~= nil then
     local anim = self.animations[self.current_animation]
 
-    if anim.mode == ANIMATION_TYPE.once and anim.played_once then
+    if anim.mode == AnimationType.once and anim.played_once then
       self:setAnimation(self.default_animation)
       return
     else
@@ -192,9 +193,22 @@ end
 function Character:update(dt)
   self:updateAnimation(dt)
 
-  if love.mouse.isDown(1) then
-    self:setAnimation("hit_up_right")
-  end
+  -- if love.mouse.isDown(1) then
+  --   self:setAnimation("hit_up_right")
+  -- end
+end
+
+---@param action ActionAnimation
+function Character:doAction(action)
+  local duration = self.animations[action].duration
+  -- TODO: Return the duration it takes to reach the key keyframe when something important actually happens
+  -- example: when the player hits an enemy, the enemy should be able to react to the hit at the exact moment
+  -- local duration = self.animations[action]:getDurationToKeyframe(self.animations[action].key_keyframe)
+  -- another approach would be to have two separate animations:
+  --  1. the actual hit animation, where the last keyframe is the one where the hit happens
+  --  2. the traceback animation, where the player comes back to the original position
+  self:setAnimation(action)
+  return duration
 end
 
 return Character

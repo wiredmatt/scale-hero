@@ -2,7 +2,7 @@ local rs = require "lib.rs"
 local logger = require "src.tool.logger"
 
 rs.conf({ game_width = 1366, game_height = 768, scale_mode = 1 })
-rs.setMode(rs.game_width, rs.game_height, { resizable = true, fullscreen = true })
+rs.setMode(rs.game_width, rs.game_height, { resizable = true, fullscreen = false })
 
 local Camera = require "lib.camera"
 
@@ -119,8 +119,13 @@ function love.mousemoved(x, y, dx, dy, istouch)
   level:mousemoved()
 end
 
+function love.mousepressed(x, y, button, istouch)
+  level:mousepressed(button)
+end
+
 function love.update(dt)
   flux.update(dt) -- update all tweens
+  actionTimer:update(dt)
   level:update(dt)
 
   cam:lookAt(rs.game_width / 2, rs.game_height / 2)

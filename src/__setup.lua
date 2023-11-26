@@ -1,10 +1,13 @@
+-- _G.lg = love.graphics -- cache love.graphics
+
+
 _G.INITIAL_TILE_SCALE = 24
 _G.INITIAL_CHARACTER_SCALE = 2.5
 
 _G.TILE_SIZE = 16
 _G.TILE_SCALE = _G.INITIAL_TILE_SCALE
 _G.CHARACTER_SCALE = _G.INITIAL_CHARACTER_SCALE
-_G.lg = love.graphics -- cache love.graphics
+
 _G.mouseX = 0
 _G.mouseY = 0
 
@@ -36,3 +39,8 @@ _G.print = require("lib.pprint") -- override the default print function to be ab
 print.setup({
   wrap_string = false
 })
+
+
+_G.Timer = require("lib.timer") -- override the default timer to be able to use it in a more convenient way
+
+_G.actionTimer = Timer.new()
