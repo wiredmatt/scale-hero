@@ -1,8 +1,6 @@
 local Base      = require "src.game.ent.Base"
 local TweenAnim = require "src.game.ent.TweenAnim"
 local logger    = require "src.tool.logger"
-local pprint    = require "lib.pprint"
-local timer = require "lib.timer"
 
 ---@class Character : Base
 ---@field super Base

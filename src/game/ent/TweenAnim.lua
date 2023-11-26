@@ -1,5 +1,3 @@
-local uuid = require("lib.uuid")
-local Object = require "lib.object"
 local flux = require "lib.flux"
 local WithID = require "src.game.ent.WithID"
 
