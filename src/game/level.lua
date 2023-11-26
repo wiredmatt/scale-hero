@@ -315,10 +315,13 @@ end
 
 function level:draw_characters()
   lg.setColor(1, 1, 1, 1)
+  lg.push()
+  lg.scale(_G.CHARACTER_SCALE,_G.CHARACTER_SCALE)
   for _, character in pairs(Atlas.character_keys) do
     local b = self.batches[character]
     lg.draw(b.sb)
   end
+  lg.pop()
 end
 
 function level:draw_overlays()
