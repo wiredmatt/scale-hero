@@ -2,7 +2,7 @@ local rs = require "lib.rs"
 local logger = require "src.tool.logger"
 
 rs.conf({ game_width = 1366, game_height = 768, scale_mode = 1 })
-rs.setMode(rs.game_width, rs.game_height, { resizable = true, fullscreen = false })
+rs.setMode(rs.game_width, rs.game_height, { resizable = true, fullscreen = true })
 
 local Camera = require "lib.camera"
 
@@ -67,7 +67,7 @@ function love.keypressed(k)
   elseif k == "1" then
     love.window.setFullscreen(true)
   else
-    if _G.TILE_SCALE > 2 then
+    if _G.TILE_SCALE > 3 then
       _G.TILE_SCALE = _G.TILE_SCALE - 1
       level:onScaleChange()
     end
@@ -82,7 +82,7 @@ function love.keypressed(k)
   elseif _G.TILE_SCALE == 4 then
     _G.CHARACTER_SCALE = 1
   elseif _G.TILE_SCALE == 3 then
-    _G.CHARACTER_SCALE = 0.6
+    _G.CHARACTER_SCALE = 0.75
   end
 end
 

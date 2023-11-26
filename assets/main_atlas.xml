@@ -11,5 +11,6 @@
 	<SubTexture name="hero_knight" x="0" y="128" width="16" height="16"/>
 	<SubTexture name="enemy_cacti" x="0" y="144" width="16" height="16"/>
 	<SubTexture name="enemy_bat" x="0" y="160" width="16" height="16"/>
+	<SubTexture name="enemy_ghost" x="16" y="160" width="16" height="16"/>
 	<SubTexture name="indicator_base" x="0" y="80" width="16" height="16"/>
 </TextureAtlas>

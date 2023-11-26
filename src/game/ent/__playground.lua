@@ -1,4 +1,5 @@
 local Object = require "lib.object"
+local pprint = require "lib.pprint"
 
 ---@class Point : Object
 ---@overload fun(x: number, y: number): Point
@@ -31,4 +32,21 @@ function Rect:new(x, y, width, height)
   self.height = height or 0
 end
 
+Hexagon = Rect:extend()
+function Hexagon:new(x,y, width, height)
+  Hexagon.super.new(self, x, y, width, height)
+end
+
+Octagon = Hexagon:extend()
+function Octagon:new(x,y, width, height)
+  Octagon.super.new(self, x, y, width, height)
+  self.isOct = true
+end
+
 local rect = Rect(10, 20, 30, 40)
+
+local hex = Hexagon(10, 20, 30, 40)
+
+local oct = Octagon(10, 20, 30, 40)
+
+pprint(oct)

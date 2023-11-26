@@ -7,7 +7,7 @@ local Party = WithID:extend()
 
 --- @param members table<string, Character> The characters in the party
 function Party:new(members)
-  self.super.new(self)
+  Party.super.new(self)
   self.members = members or {}
 end
 

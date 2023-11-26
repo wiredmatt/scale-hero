@@ -6,6 +6,7 @@ local Character = require "src.game.ent.Character"
 local uuid = require "lib.uuid"
 local logger = require "src.tool.logger"
 local rs = require "lib.rs"
+local EnemyCacti = require "src.game.ent.enemies.EnemyCacti"
 
 local level = {
   ---@type Tile[]
@@ -69,7 +70,7 @@ function level:setup()
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
-      [uuid()] = Character("enemy_cacti", 32, 16),
+      [uuid()] = EnemyCacti(32, 16),
     }),
     [16] = Party({}),
     [12] = Party({}),
@@ -92,27 +93,6 @@ function level:makeEnemyPartyForScale(on_scale)
   local hero_party_members = self.hero_party.members
 
   local free_spots = {}
-
-  -- while true do
-  --   -- _x must be in the range of x, w and be a multiple of on_scale at the same time
-  --   -- example: 16, 32, 48, 64, 80, 96, 112, 128
-  --   local _x = _G.TILE_SIZE * love.math.random(1, (w - _G.TILE_SIZE) / _G.TILE_SIZE)
-  --   local _y = _G.TILE_SIZE * love.math.random(1, (h - _G.TILE_SIZE) / _G.TILE_SIZE)
-
-  --   local is_valid = true
-
-  --   for _, hero in pairs(hero_party_members) do
-  --     if hero.x == _x and hero.y == _y then
-  --       is_valid = false
-  --       break
-  --     end
-  --   end
-
-  --   if is_valid then
-  --     table.insert(free_spots, { x = _x, y = _y })
-  --     break
-  --   end
-  -- end
 
   for i = 0, w, _G.TILE_SIZE do
     for j = 0, h, _G.TILE_SIZE do
@@ -157,14 +137,14 @@ function level:makeEnemyPartyForScale(on_scale)
     used_spots[random_spot] = true -- mark the spot as used
 
     if #enemy_party.members < min_enemies then
-      local enemy = Character("enemy_cacti", free_spots[random_spot].x, free_spots[random_spot].y)
+      local enemy = Character("enemy_ghost", free_spots[random_spot].x, free_spots[random_spot].y)
       table.insert(enemy_party.members, enemy)
     else
       -- calculate the chance of spawning an enemy based on the number of extra enemies
       local chance = base_chance / (1 + extra_enemies * decrease_factor)
 
       if love.math.random(1, 100) < chance then
-        local enemy = Character("enemy_cacti", free_spots[random_spot].x, free_spots[random_spot].y)
+        local enemy = Character("enemy_ghost", free_spots[random_spot].x, free_spots[random_spot].y)
         table.insert(enemy_party.members, enemy)
         extra_enemies = extra_enemies + 1
       end
@@ -271,56 +251,48 @@ function level:draw_tiles()
 
   lg.push()
 
-  lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
+    lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
 
-  for _, name in pairs(Atlas.ground_keys) do
-    local b = self.batches[name]
-    lg.draw(b.sb)
-  end
+    for _, name in pairs(Atlas.ground_keys) do
+      local b = self.batches[name]
+      lg.draw(b.sb)
+    end
 
-  local active_region_quad = self:getActiveRegion()
 
-  -- debug all tiles
-  for _, v in ipairs(self.selectable_tiles) do
-    local style = "line"
-    love.graphics.setColor(1, 1, 1, 1)
+    if self.hovered_tile ~= nil then
+      Atlas.lib.drawSprite(
+        SPRITE_NAMES.indicator_base,
+        self.hovered_tile.x,
+        self.hovered_tile.y,
+        0
+      )
+    end
 
-    -- if utils.isInQuad(active_region_quad, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE) then
-    --   style = "line"
-    -- else
-    --   -- darken the tile
-    --   love.graphics.setColor(0, 0, 0, 0.75)
-    --   style = "fill"
+    -- local active_region_quad = self:getActiveRegion()
+    -- debug all tiles
+    -- for _, v in ipairs(self.selectable_tiles) do
+    --   local style = "line"
+    --   love.graphics.setColor(1, 1, 1, 1)
+    --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
     -- end
 
-    love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
-  end
-
-  if self.hovered_tile ~= nil then
-    Atlas.lib.drawSprite(
-      SPRITE_NAMES.indicator_base,
-      self.hovered_tile.x,
-      self.hovered_tile.y,
-      0
-    )
-  end
-
-  -- debug active viewport
-  local x, y, w, h = active_region_quad:getViewport()
-  lg.setColor(1, 0.2, 0.8, 1)
-  lg.rectangle("line", x, y, w, h)
+    -- -- debug active viewport
+    -- local x, y, w, h = active_region_quad:getViewport()
+    -- lg.setColor(1, 0.2, 0.8, 1)
+    -- lg.rectangle("line", x, y, w, h)
 
   lg.pop()
 end
 
 function level:draw_characters()
   lg.setColor(1, 1, 1, 1)
+
   lg.push()
-  lg.scale(_G.CHARACTER_SCALE,_G.CHARACTER_SCALE)
-  for _, character in pairs(Atlas.character_keys) do
-    local b = self.batches[character]
-    lg.draw(b.sb)
-  end
+    lg.scale(_G.CHARACTER_SCALE,_G.CHARACTER_SCALE)
+    for _, character in pairs(Atlas.character_keys) do
+      local b = self.batches[character]
+      lg.draw(b.sb)
+    end
   lg.pop()
 end
 

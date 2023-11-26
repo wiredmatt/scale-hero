@@ -1,20 +1,21 @@
 local uuid = require("lib.uuid")
 local Object = require "lib.object"
 local flux = require "lib.flux"
+local WithID = require "src.game.ent.WithID"
 
 ---@class Flux.TweenArgs
 ---@field t table
 ---@field duration number
 ---@field value table
 
----@class TweenAnim : Object
+---@class TweenAnim : WithID
 ---@overload fun(mode: AnimationType,... : Flux.TweenArgs) : TweenAnim
-local TweenAnim = Object:extend()
+local TweenAnim = WithID:extend()
 
 ---@param mode AnimationType
 ---@param ... Flux.TweenArgs
 function TweenAnim:new(mode, ...)
-  self.id = uuid.new()
+  TweenAnim.super.new(self)
 
   self.mode = mode
   self.played_once = false

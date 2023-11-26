@@ -32,6 +32,7 @@ SPRITE_NAMES = {
 
   enemy_cacti = "enemy_cacti",
   enemy_bat = "enemy_bat",
+  enemy_ghost = "enemy_ghost",
   -- end characters
 
   -- start indicators

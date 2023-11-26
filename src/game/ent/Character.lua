@@ -1,6 +1,7 @@
 local Base      = require "src.game.ent.Base"
 local TweenAnim = require "src.game.ent.TweenAnim"
 local logger    = require "src.tool.logger"
+local pprint    = require "lib.pprint"
 
 ---@class Character : Base
 ---@field super Base
@@ -11,9 +12,9 @@ local Character = Base:extend()
 ---@param y number
 ---@param default_animation? string
 function Character:new(sprite, x, y, default_animation)
-  self.super.new(self, sprite, x, y, _G.TILE_SIZE, _G.TILE_SIZE)
-  self.sx = _G.CHARACTER_SCALE
-  self.sy = _G.CHARACTER_SCALE
+  Character.super.new(self, sprite, x, y, _G.TILE_SIZE, _G.TILE_SIZE)
+  self.sx = _G.INITIAL_CHARACTER_SCALE
+  self.sy = _G.INITIAL_CHARACTER_SCALE
 
   self.default_animation = default_animation or "idle_base"
 

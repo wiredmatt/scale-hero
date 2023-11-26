@@ -23,6 +23,7 @@ function Export()
   -- load enemies
   iffy.newSprite("main_atlas", SPRITE_NAMES.enemy_cacti, 0, 144, 16, 16)
   iffy.newSprite("main_atlas", SPRITE_NAMES.enemy_bat, 0, 160, 16, 16)
+  iffy.newSprite("main_atlas", SPRITE_NAMES.enemy_ghost, 16, 160, 16, 16)
 
   -- load indicators
   iffy.newSprite("main_atlas", SPRITE_NAMES.indicator_base, 0, 80, 16, 16)
@@ -51,6 +52,7 @@ local Atlas = {
 
     SPRITE_NAMES.enemy_cacti,
     SPRITE_NAMES.enemy_bat,
+    SPRITE_NAMES.enemy_ghost,
   },
   hero_keys = { -- only heroes
     SPRITE_NAMES.hero_knight,
@@ -59,6 +61,7 @@ local Atlas = {
   enemy_keys = { -- only enemies
     SPRITE_NAMES.enemy_cacti,
     SPRITE_NAMES.enemy_bat,
+    SPRITE_NAMES.enemy_ghost,
   },
 }
 
