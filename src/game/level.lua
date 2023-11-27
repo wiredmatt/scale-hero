@@ -1,18 +1,18 @@
-local Atlas = require "src.tool.atlas"
-local utils = require "src.game.utils"
-local Tile = require "src.game.ent.Tile"
-local Party = require "src.game.ent.Party"
-local Character = require "src.game.ent.Character"
-local uuid = require "lib.uuid"
-local logger = require "src.tool.logger"
-local rs = require "lib.rs"
-local Enemies = require "src.game.ent.enemies"
-local Heroes  = require "src.game.ent.heroes"
-local attacks = require "src.game.attacks"
+local Atlas         = require "src.tool.atlas"
+local utils         = require "src.game.utils"
+local Tile          = require "src.game.ent.Tile"
+local Party         = require "src.game.ent.Party"
+local Character     = require "src.game.ent.Character"
+local uuid          = require "lib.uuid"
+local logger        = require "src.tool.logger"
+local rs            = require "lib.rs"
+local Enemies       = require "src.game.ent.enemies"
+local Heroes        = require "src.game.ent.heroes"
+local attacks       = require "src.game.attacks"
 local signaleffects = require "src.game.signaleffects"
 
 ---@class Level
-local level = {
+local level         = {
   ---@type Tile[]
   ground_tiles = {},     -- all ground tiles
   ---@type Tile[]
@@ -253,35 +253,34 @@ function level:draw_tiles()
 
   lg.push()
 
-    lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
+  lg.scale(_G.TILE_SCALE, _G.TILE_SCALE)
 
-    for _, name in pairs(Atlas.ground_keys) do
-      local b = self.batches[name]
-      lg.draw(b.sb)
-    end
+  for _, name in pairs(Atlas.ground_keys) do
+    local b = self.batches[name]
+    lg.draw(b.sb)
+  end
 
+  -- if self.hovered_tile ~= nil then
+  --   Atlas.lib.drawSprite(
+  --     SpriteName.indicator_base,
+  --     self.hovered_tile.x,
+  --     self.hovered_tile.y,
+  --     0
+  --   )
+  -- end
 
-    if self.hovered_tile ~= nil then
-      Atlas.lib.drawSprite(
-        SpriteName.indicator_base,
-        self.hovered_tile.x,
-        self.hovered_tile.y,
-        0
-      )
-    end
+  -- local active_region_quad = self:getActiveRegion()
+  -- debug all tiles
+  -- for _, v in ipairs(self.selectable_tiles) do
+  --   local style = "line"
+  --   love.graphics.setColor(1, 1, 1, 1)
+  --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
+  -- end
 
-    -- local active_region_quad = self:getActiveRegion()
-    -- debug all tiles
-    -- for _, v in ipairs(self.selectable_tiles) do
-    --   local style = "line"
-    --   love.graphics.setColor(1, 1, 1, 1)
-    --   love.graphics.rectangle(style, v.x, v.y, _G.TILE_SIZE, _G.TILE_SIZE)
-    -- end
-
-    -- -- debug active viewport
-    -- local x, y, w, h = active_region_quad:getViewport()
-    -- lg.setColor(1, 0.2, 0.8, 1)
-    -- lg.rectangle("line", x, y, w, h)
+  -- -- debug active viewport
+  -- local x, y, w, h = active_region_quad:getViewport()
+  -- lg.setColor(1, 0.2, 0.8, 1)
+  -- lg.rectangle("line", x, y, w, h)
 
   lg.pop()
 end
@@ -290,11 +289,11 @@ function level:draw_characters()
   lg.setColor(1, 1, 1, 1)
 
   lg.push()
-    lg.scale(_G.CHARACTER_SCALE,_G.CHARACTER_SCALE)
-    for _, character in pairs(Atlas.character_keys) do
-      local b = self.batches[character]
-      lg.draw(b.sb)
-    end
+  lg.scale(_G.CHARACTER_SCALE, _G.CHARACTER_SCALE)
+  for _, character in pairs(Atlas.character_keys) do
+    local b = self.batches[character]
+    lg.draw(b.sb)
+  end
   lg.pop()
 end
 
@@ -331,8 +330,19 @@ function level:mousepressed(button)
     --   self.hero_party:moveTo(self.hovered_tile.x, self.hovered_tile.y)
     -- end
 
-    local from = (function() for _, character in pairs(self.hero_party.members) do if character.sprite == "hero_bob" then return character end end end)()
+    local from = (function()
+      for _, character in pairs(self.hero_party.members) do
+        if character.sprite == "hero_bob" then
+          return
+              character
+        end
+      end
+    end)()
     local to = (function() for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do return enemy end end)()
+
+    if from == nil or to == nil then
+      return
+    end
 
     self:wait_attack(from, to, "melee_default")
   end
@@ -402,7 +412,7 @@ setmetatable(proxy, {
     local func = member -- member is a function
 
     return function(t, ...)
-      local args = {...}
+      local args = { ... }
 
       if k:find("^wait_") ~= nil then
         return actionTimer:script(function(wait)
