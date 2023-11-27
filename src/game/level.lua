@@ -8,6 +8,8 @@ local logger = require "src.tool.logger"
 local rs = require "lib.rs"
 local Enemies = require "src.game.ent.enemies"
 local Heroes  = require "src.game.ent.heroes"
+local attacks = require "src.game.attacks"
+local signaleffects = require "src.game.signaleffects"
 
 ---@class Level
 local level = {
@@ -329,7 +331,10 @@ function level:mousepressed(button)
     --   self.hero_party:moveTo(self.hovered_tile.x, self.hovered_tile.y)
     -- end
 
-    self:wait_attack()
+    local from = (function() for _, character in pairs(self.hero_party.members) do if character.sprite == "hero_bob" then return character end end end)()
+    local to = (function() for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do return enemy end end)()
+
+    self:wait_attack(from, to, "melee_default")
   end
 end
 
@@ -339,27 +344,45 @@ function level:onScaleChange()
   end
 end
 
-
+---@param wait function IGNORE THIS, already injected in the proxy
+---@param from Character
+---@param to Character
+---@param attack_id string
+---@overload fun(wait: nil, from: Character, to: Character, attack_id: string)
 function level:wait_attack(wait, from, to, attack_id)
-  local hero_bob = (function() for _, character in pairs(self.hero_party.members) do if character.sprite == "hero_bob" then return character end end end)()
-  local enemy = (function() for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do return enemy end end)()
+  logger:debug("here before doing action")
 
-  print("here before doing action")
+  local attack = attacks[attack_id]
 
-  -- todo: get signals from attack_id, for now we assume it's only `hit`
-  -- local attack = self.attacks[attack_id]
-  -- local attack_signals = attack.signals
+  local axis = 'x'
 
-  local total, signals = hero_bob:doAction(ActionAnimation.hit_right)
+  if from.x ~= to.x then
+    axis = 'x'
+  end
 
-  local time_to_hit_signal = signals["hit"] -- todo: change to `signals[attack_signals[i]]`
+  if from.y ~= to.y then
+    axis = 'y'
+  end
 
-  print('total time is: ' .. total)
-  print('time to `hit` is: ' .. time_to_hit_signal)
+  local total, signals = from:doAction(ActionAnimation.hit_right)
+  local signals_time_acumulator = 0
 
-  wait(time_to_hit_signal)
-  -- do something after the hit signal is emitted
-  enemy:doAction(ActionAnimation.get_hit_x)
+  for signal, time in pairs(signals) do
+    logger:debug("|" .. from.sprite .. "|" .. " signal: " .. signal .. " time: " .. time)
+
+    signals_time_acumulator = signals_time_acumulator + time
+
+    wait(time)
+
+    local to_action = signaleffects[signal](axis)
+    logger:debug("|" .. to.sprite .. "|" .. " does action: " .. to_action)
+    to:doAction(to_action)
+  end
+
+  -- wait for the rest of the time. even if all the key points of the animation already happened,
+  -- there might be some time left to wait before the full animation is completely over.
+  local time_after_signals = total - signals_time_acumulator
+  wait(time_after_signals)
 
   print("here after :o")
 end

@@ -118,11 +118,17 @@ function Character:update(dt)
 end
 
 ---@param action ActionAnimation
-function Character:doAction(action, signal)
+function Character:doAction(action)
   local anim = self.animations[action]
   local total_duration = anim.duration
 
   self:setAnimation(action)
+
+  if action --[[@as string]]:find("^get_hit") then
+    -- deduct points from health bar with tween
+    -- self.health:deduct(1)
+  end
+
   return total_duration, anim.signals
 end
 
