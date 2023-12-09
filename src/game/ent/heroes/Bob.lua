@@ -12,7 +12,7 @@ HeroBob:implement(WithMelee)
 ---@param x number
 ---@param y number
 function HeroBob:new(x, y)
-  HeroBob.super.new(self, SpriteName.hero_bob, x, y)
+  HeroBob.super.new(self, SpriteName.hero_bob, x, y, 100, 10, 1, 1)
   self:applyMelee()
 end
 

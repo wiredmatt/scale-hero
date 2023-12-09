@@ -30,6 +30,16 @@ function logger:debug(...)
   }, ...)
 end
 
+---@param topic string
+---@param type 'does action' | 'emits signal'
+---@param value any
+---@param ... any
+function logger:debug_action(topic, type, value, ...)
+  print({
+    __PREFIX__ = self.colors.debug .. self.levels.debug
+  }, (topic and "|" .. topic .. "| " or " ") .. (type or 'NIL_TYPE') .. ": `" .. (value or 'NIL_VALUE') .. "`")
+end
+
 ---@param ... any
 function logger:warn(...)
   print({

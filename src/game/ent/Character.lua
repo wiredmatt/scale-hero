@@ -10,7 +10,11 @@ local Character = Base:extend()
 ---@param x number
 ---@param y number
 ---@param default_animation? string
-function Character:new(sprite, x, y, default_animation)
+---@param hp? number
+---@param atk_melee? number
+---@param atk_range? number
+---@param def? number
+function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range, def)
   Character.super.new(self, sprite, x, y, _G.TILE_SIZE, _G.TILE_SIZE)
   self.sx = _G.INITIAL_CHARACTER_SCALE
   self.sy = _G.INITIAL_CHARACTER_SCALE
@@ -63,6 +67,11 @@ function Character:new(sprite, x, y, default_animation)
   }
 
   self.current_animation = self.default_animation
+
+  self.hp = hp or 0
+  self.atk_melee = atk_melee or 0
+  self.atk_range = atk_range or 0
+  self.def = def or 0
 end
 
 ---@return SpriteName sprite_name
@@ -111,22 +120,26 @@ end
 
 function Character:update(dt)
   self:updateAnimation(dt)
-
   -- if love.mouse.isDown(1) then
   --   self:setAnimation("hit_up_right")
   -- end
 end
 
 ---@param action ActionAnimation
-function Character:doAction(action)
+---@param data? {damage: number}
+function Character:doAction(action, data)
   local anim = self.animations[action]
   local total_duration = anim.duration
 
   self:setAnimation(action)
 
   if action --[[@as string]]:find("^get_hit") then
-    -- deduct points from health bar with tween
-    -- self.health:deduct(1)
+    if not data then
+      logger:error("Character:doAction() - attack data is nil")
+    else
+      self.hp = self.hp - data.damage
+      logger:debug(self.sprite, "hp now: ", self.hp)
+    end
   end
 
   return total_duration, anim.signals

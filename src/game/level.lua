@@ -175,13 +175,21 @@ function level:getActiveRegion()
 end
 
 function level:update(dt)
-  for _, hero in pairs(self.hero_party.members) do
-    hero:update(dt)
+  for name, hero in pairs(self.hero_party.members) do
+    if hero.hp <= 0 then
+      self.hero_party.members[name] = nil
+    else
+      hero:update(dt)
+    end
   end
 
   if self.enemy_parties[_G.TILE_SCALE] ~= nil then
-    for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
-      enemy:update(dt)
+    for name, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
+      if enemy.hp <= 0 then
+        self.enemy_parties[_G.TILE_SCALE].members[name] = nil
+      else
+        enemy:update(dt)
+      end
     end
   end
 
@@ -360,8 +368,6 @@ end
 ---@param attack_id string
 ---@overload fun(wait: nil, from: Character, to: Character, attack_id: string)
 function level:wait_attack(wait, from, to, attack_id)
-  logger:debug("here before doing action")
-
   local attack = attacks[attack_id]
 
   local axis = 'x'
@@ -378,23 +384,23 @@ function level:wait_attack(wait, from, to, attack_id)
   local signals_time_acumulator = 0
 
   for signal, time in pairs(signals) do
-    logger:debug("|" .. from.sprite .. "|" .. " signal: " .. signal .. " time: " .. time)
+    logger:debug_action(from.sprite, "emits signal", signal)
 
     signals_time_acumulator = signals_time_acumulator + time
 
     wait(time)
 
     local to_action = signaleffects[signal](axis)
-    logger:debug("|" .. to.sprite .. "|" .. " does action: " .. to_action)
-    to:doAction(to_action)
+    logger:debug_action(to.sprite, "does action", to_action)
+    local to_time, _to_signals = to:doAction(to_action, {
+      damage = from.atk_melee * attack.damage_multiplier
+    })
   end
 
   -- wait for the rest of the time. even if all the key points of the animation already happened,
   -- there might be some time left to wait before the full animation is completely over.
   local time_after_signals = total - signals_time_acumulator
   wait(time_after_signals)
-
-  print("here after :o")
 end
 
 level.__index = level
