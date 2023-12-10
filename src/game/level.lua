@@ -30,7 +30,8 @@ local level         = {
   ---@type Party
   hero_party = nil,
   ---@type table<number, Party>
-  enemy_parties = {} -- enemy "waves" - each wave is a party of enemies that will spawn at a certain scale.
+  enemy_parties = {}, -- enemy "waves" - each wave is a party of enemies that will spawn at a certain scale.
+  ongoing_action = false
 }
 
 function level:setup()
@@ -65,14 +66,12 @@ function level:setup()
   end
 
   self.hero_party = Party(
-    {
-      [uuid()] = Heroes.Bob(0, 0)
-    }
+    { [1] = Heroes.Bob(0, 0) }
   )
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
-      [uuid()] = Enemies.Cacti(16, 0),
+      [1] = Enemies.Cacti(16, 0),
     }),
     [16] = Party({}),
     [12] = Party({}),
@@ -101,7 +100,7 @@ function level:makeEnemyPartyForScale(on_scale)
       if utils.isInQuad(q, i, j, _G.TILE_SIZE, _G.TILE_SIZE) then
         local is_valid = true
 
-        for _, hero in pairs(hero_party_members) do
+        for _, hero in ipairs(hero_party_members) do
           if hero.x == i and hero.y == j then
             is_valid = false
             break
@@ -175,21 +174,13 @@ function level:getActiveRegion()
 end
 
 function level:update(dt)
-  for name, hero in pairs(self.hero_party.members) do
-    if hero.fullyDead then
-      self.hero_party.members[name] = nil
-    else
-      hero:update(dt)
-    end
+  for _, hero in ipairs(self.hero_party.members) do
+    hero:update(dt)
   end
 
   if self.enemy_parties[_G.TILE_SCALE] ~= nil then
-    for name, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
-      if enemy.fullyDead then
-        self.enemy_parties[_G.TILE_SCALE].members[name] = nil
-      else
-        enemy:update(dt)
-      end
+    for _, enemy in ipairs(self.enemy_parties[_G.TILE_SCALE].members) do
+      enemy:update(dt)
     end
   end
 
@@ -210,16 +201,18 @@ function level:setupCharacterSpriteBatches()
   end
 
   if self.enemy_parties[_G.TILE_SCALE] ~= nil then
-    for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
+    for _, enemy in ipairs(self.enemy_parties[_G.TILE_SCALE].members) do
       local b = self.batches[enemy.sprite]
-      local _, x, y, r, sx, sy, ox, oy, kx, ky = enemy:getDrawArgs()
+      local _, x, y, r, sx, sy, ox, oy, kx, ky, color = enemy:getDrawArgs()
+      b.sb:setColor(color.r, color.g, color.b, color.a)
       b.sb:add(b.quad, x, y, r, sx, sy, ox, oy, kx, ky)
     end
   end
 
-  for _, hero in pairs(self.hero_party.members) do
+  for _, hero in ipairs(self.hero_party.members) do
     local b = self.batches[hero.sprite]
-    local _, x, y, r, sx, sy, ox, oy, kx, ky = hero:getDrawArgs()
+    local _, x, y, r, sx, sy, ox, oy, kx, ky, color = hero:getDrawArgs()
+    b.sb:setColor(color.r, color.g, color.b, color.a)
     b.sb:add(b.quad, x, y, r, sx, sy, ox, oy, kx, ky)
   end
 end
@@ -339,14 +332,14 @@ function level:mousepressed(button)
     -- end
 
     local from = (function()
-      for _, character in pairs(self.hero_party.members) do
+      for _, character in ipairs(self.hero_party.members) do
         if character.sprite == "hero_bob" then
           return
               character
         end
       end
     end)()
-    local to = (function() for _, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do return enemy end end)()
+    local to = (function() for _, enemy in ipairs(self.enemy_parties[_G.TILE_SCALE].members) do return enemy end end)()
 
     if from == nil or to == nil then
       return
@@ -368,6 +361,10 @@ end
 ---@param attack_id string
 ---@overload fun(wait: nil, from: Character, to: Character, attack_id: string)
 function level:wait_attack(wait, from, to, attack_id)
+  if self.ongoing_action then return end
+
+  self.ongoing_action = true
+
   local attack = attacks[attack_id]
 
   local axis = 'x'
@@ -399,9 +396,16 @@ function level:wait_attack(wait, from, to, attack_id)
     if _to_signals['die'] ~= nil then
       logger:debug_action(to.sprite, "emits signal", "die")
       wait(to_time)
-      -- to.fullyDead = true
+      if to.isEnemy then
+        table.remove(self.enemy_parties[_G.TILE_SCALE].members, to.id --[[@as number]])
+        print(to.id, self.enemy_parties[_G.TILE_SCALE].members[1])
+      else
+        self.hero_party.members[to.id] = nil
+      end
+
       break
     end
+    self.ongoing_action = false
   end
 
   -- wait for the rest of the time. even if all the key points of the animation already happened,

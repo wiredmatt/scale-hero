@@ -11,7 +11,7 @@ EnemyCacti:implement(WithMelee)
 ---@param x number
 ---@param y number
 function EnemyCacti:new(x, y)
-  EnemyCacti.super.new(self, SpriteName.enemy_cacti, x, y)
+  EnemyCacti.super.new(self, SpriteName.enemy_cacti, x, y, 10)
   self:applyMelee()
 end
 

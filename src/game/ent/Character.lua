@@ -16,6 +16,15 @@ local Character = Base:extend()
 ---@param def? number
 function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range, def)
   Character.super.new(self, sprite, x, y, _G.TILE_SIZE, _G.TILE_SIZE)
+  self.isEnemy = false
+  self.isHero = false
+  self.color = {
+    r = 1,
+    g = 1,
+    b = 1,
+    a = 1
+  }
+
   self.sx = _G.INITIAL_CHARACTER_SCALE
   self.sy = _G.INITIAL_CHARACTER_SCALE
 
@@ -38,17 +47,20 @@ function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range
     --- [[ EFFECT ANIMATIONS ]]
     ["get_hit_x"] = TweenAnim(
       AnimationType.once,
-
+      { t = self.color, duration = 0.1, value = { r = 1, g = 0, b = 0, a = 1 } },
+      { t = self.color, duration = 0.25, value = { r = 1, g = 1, b = 1, a = 1 } },
       { t = self, duration = 0.05, value = { x = self.x - 0.35 } },
       { t = self, duration = 0.05, value = { x = self.x + 0.35 } },
       { t = self, duration = 0.05, value = { x = self.x - 0.35 } },
       { t = self, duration = 0.05, value = { x = self.x + 0.35 } },
       { t = self, duration = 0.05, value = { x = self.x - 0.35 } },
       { t = self, duration = 0.05, value = { x = self.x + 0.35 } },
+      { t = self.color, duration = 0.1, value = { r = 1, g = 0, b = 0, a = 1 } },
+      { t = self.color, duration = 0.25, value = { r = 1, g = 0, b = 0, a = 1 } },
       { t = self, duration = 0.05, value = { x = self.x - 0.35 } },
       { t = self, duration = 0.05, value = { x = self.x + 0.35 } },
-
-      { t = self, duration = 0, value = { x = self.x } }
+      { t = self, duration = 0, value = { x = self.x } },
+      { t = self.color, duration = 0, value = { r = 1, g = 1, b = 1, a = 1 } }
     ),
     ["get_hit_y"] = TweenAnim(
       AnimationType.once,
@@ -68,7 +80,9 @@ function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range
       AnimationType.once,
       { t = self, duration = 0, value = { hp = 0 } },
       { t = self, duration = 1, value = { sy = self.sy * 2, sx = self.sx * 2, x = self.x - 2, y = self.y - 2 } },
-      { t = self, duration = 1, value = { sy = 0, sx = 0, x = self.x + 2, y = self.y + 2 } }
+      { t = self, duration = 1, value = { sy = 0, sx = 0, x = self.x + 2, y = self.y + 2 } },
+      { t = self.color, duration = 0.1, value = { r = 1, g = 1, b = 1, a = 1 } },
+      { t = {}, duration = 0, value = {}, signal = "die" }
     ),
   }
 
@@ -92,6 +106,7 @@ end
 ---@return number oy
 ---@return number kx
 ---@return number ky
+---@return {r:number, g: number, b: number, a: number} color
 function Character:getDrawArgs()
   ---@format disable
   return self.sprite,
@@ -100,7 +115,8 @@ function Character:getDrawArgs()
          self.rotation,
          self.sx, self.sy,
          self.ox, self.oy,
-         self.kx, self.ky
+         self.kx, self.ky,
+         self.color
   ---@format enable
 end
 

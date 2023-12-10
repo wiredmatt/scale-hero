@@ -2,13 +2,17 @@ local WithID = require "src.game.ent.WithID"
 
 ---@class Party : WithID
 ---@field super WithID
----@overload fun(members: table<string, Character>)
+---@overload fun(members: table<number, Character>)
 local Party = WithID:extend()
 
---- @param members table<string, Character> The characters in the party
+--- @param members table<number, Character> The characters in the party
 function Party:new(members)
   Party.super.new(self)
   self.members = members or {}
+
+  for id, member in ipairs(self.members) do
+    member.id = id
+  end
 end
 
 --- @param member Character

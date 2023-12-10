@@ -5,7 +5,9 @@ local Object = require "lib.object"
 local WithID = Object:extend()
 
 function WithID:new()
-  self.id = uuid.new()
+  ---@type number
+  self.id = nil
+  self.global_id = uuid.new()
 end
 
 return WithID
