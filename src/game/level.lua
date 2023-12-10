@@ -176,7 +176,7 @@ end
 
 function level:update(dt)
   for name, hero in pairs(self.hero_party.members) do
-    if hero.hp <= 0 then
+    if hero.fullyDead then
       self.hero_party.members[name] = nil
     else
       hero:update(dt)
@@ -185,7 +185,7 @@ function level:update(dt)
 
   if self.enemy_parties[_G.TILE_SCALE] ~= nil then
     for name, enemy in pairs(self.enemy_parties[_G.TILE_SCALE].members) do
-      if enemy.hp <= 0 then
+      if enemy.fullyDead then
         self.enemy_parties[_G.TILE_SCALE].members[name] = nil
       else
         enemy:update(dt)
@@ -395,6 +395,13 @@ function level:wait_attack(wait, from, to, attack_id)
     local to_time, _to_signals = to:doAction(to_action, {
       damage = from.atk_melee * attack.damage_multiplier
     })
+
+    if _to_signals['die'] ~= nil then
+      logger:debug_action(to.sprite, "emits signal", "die")
+      wait(to_time)
+      -- to.fullyDead = true
+      break
+    end
   end
 
   -- wait for the rest of the time. even if all the key points of the animation already happened,

@@ -22,7 +22,8 @@ ActionAnimation = {
   hit_up_left = "hit_up_left",
   hit_up_right = "hit_up_right",
   get_hit_x = "get_hit_x",
-  get_hit_y = "get_hit_y"
+  get_hit_y = "get_hit_y",
+  die = "die",
 }
 
 ---@enum SpriteName

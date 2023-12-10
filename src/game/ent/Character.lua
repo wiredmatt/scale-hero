@@ -64,6 +64,12 @@ function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range
 
       { t = self, duration = 0, value = { y = self.y } }
     ),
+    ["die"] = TweenAnim(
+      AnimationType.once,
+      { t = self, duration = 0, value = { hp = 0 } },
+      { t = self, duration = 1, value = { sy = self.sy * 2, sx = self.sx * 2, x = self.x - 2, y = self.y - 2 } },
+      { t = self, duration = 1, value = { sy = 0, sx = 0, x = self.x + 2, y = self.y + 2 } }
+    ),
   }
 
   self.current_animation = self.default_animation
@@ -72,6 +78,8 @@ function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range
   self.atk_melee = atk_melee or 0
   self.atk_range = atk_range or 0
   self.def = def or 0
+
+  self.fullyDead = false
 end
 
 ---@return SpriteName sprite_name
@@ -101,6 +109,10 @@ function Character:updateAnimation(dt)
     local anim = self.animations[self.current_animation]
 
     if anim.mode == AnimationType.once and anim.played_once then
+      if self.current_animation == "die" then
+        self.fullyDead = true
+      end
+
       self:setAnimation(self.default_animation)
       return
     else
@@ -120,9 +132,6 @@ end
 
 function Character:update(dt)
   self:updateAnimation(dt)
-  -- if love.mouse.isDown(1) then
-  --   self:setAnimation("hit_up_right")
-  -- end
 end
 
 ---@param action ActionAnimation
@@ -131,16 +140,27 @@ function Character:doAction(action, data)
   local anim = self.animations[action]
   local total_duration = anim.duration
 
-  self:setAnimation(action)
-
   if action --[[@as string]]:find("^get_hit") then
     if not data then
       logger:error("Character:doAction() - attack data is nil")
     else
-      self.hp = self.hp - data.damage
-      logger:debug(self.sprite, "hp now: ", self.hp)
+      local hpAfter = self.hp - data.damage
+
+      if hpAfter <= 0 then
+        for k, tween in ipairs(self.animations['die'].tweens) do
+          anim.tweens[k] = tween
+        end
+
+        anim = TweenAnim(AnimationType.once, unpack(anim.tweens))
+        self.animations["die"] = anim
+        total_duration = anim.duration
+        action = ActionAnimation.die
+      else
+        self.hp = hpAfter
+      end
     end
   end
+  self:setAnimation(action)
 
   return total_duration, anim.signals
 end
