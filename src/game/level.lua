@@ -69,6 +69,7 @@ function level:setup()
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
+      Enemies.Cacti(16, 16),
       Enemies.Ghost(0, 16),
       Enemies.Cacti(16, 0),
       Enemies.Ghost(32, 0),
@@ -400,6 +401,8 @@ function level:wait_attack(wait, from, to, attack_id)
       logger:debug_action(to.sprite, "emits signal", "die")
 
       wait(to_time)
+      signals_time_acumulator = 0
+      total = 0
 
       if to.isEnemy then
         self.enemy_parties[_G.TILE_SCALE]:removeMember(to)
