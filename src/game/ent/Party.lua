@@ -2,10 +2,10 @@ local WithID = require "src.game.ent.WithID"
 
 ---@class Party : WithID
 ---@field super WithID
----@overload fun(members: table<number, Character>)
+---@overload fun(members: Character[])
 local Party = WithID:extend()
 
---- @param members table<number, Character> The characters in the party
+--- @param members Character[] The characters in the party
 function Party:new(members)
   Party.super.new(self)
   self.members = members or {}
@@ -16,8 +16,13 @@ function Party:new(members)
 end
 
 --- @param member Character
-function Party:addMember(member)
-  self.members[member.id] = member
+function Party:removeMember(member)
+  for id, m in ipairs(self.members) do
+    if m == member then
+      table.remove(self.members, id)
+      return
+    end
+  end
 end
 
 return Party

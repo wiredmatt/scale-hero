@@ -2,8 +2,6 @@ local Atlas         = require "src.tool.atlas"
 local utils         = require "src.game.utils"
 local Tile          = require "src.game.ent.Tile"
 local Party         = require "src.game.ent.Party"
-local Character     = require "src.game.ent.Character"
-local uuid          = require "lib.uuid"
 local logger        = require "src.tool.logger"
 local rs            = require "lib.rs"
 local Enemies       = require "src.game.ent.enemies"
@@ -66,12 +64,13 @@ function level:setup()
   end
 
   self.hero_party = Party(
-    { [1] = Heroes.Bob(0, 0) }
+    { Heroes.Bob(0, 0) }
   )
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
-      [1] = Enemies.Cacti(16, 0),
+      Enemies.Cacti(16, 0),
+      Enemies.Ghost(32, 0),
     }),
     [16] = Party({}),
     [12] = Party({}),
@@ -89,7 +88,7 @@ end
 
 function level:makeEnemyPartyForScale(on_scale)
   local q = self:getActiveRegion()
-  local x, y, w, h = q:getViewport()
+  local _, _, w, h = q:getViewport()
 
   local hero_party_members = self.hero_party.members
 
@@ -114,7 +113,7 @@ function level:makeEnemyPartyForScale(on_scale)
     end
   end
 
-  local enemy_party = self.enemy_parties[on_scale]
+  local members = {}
 
   -- the higher the scale, the less enemies we to use.
   -- the amount of enemies must not exceed the free_spots, but it can be less.
@@ -137,22 +136,22 @@ function level:makeEnemyPartyForScale(on_scale)
 
     used_spots[random_spot] = true -- mark the spot as used
 
-    if #enemy_party.members < min_enemies then
-      local enemy = Character("enemy_ghost", free_spots[random_spot].x, free_spots[random_spot].y)
-      table.insert(enemy_party.members, enemy)
+    if #members < min_enemies then
+      local enemy = Enemies.Ghost(free_spots[random_spot].x, free_spots[random_spot].y)
+      table.insert(members, enemy)
     else
       -- calculate the chance of spawning an enemy based on the number of extra enemies
       local chance = base_chance / (1 + extra_enemies * decrease_factor)
 
       if love.math.random(1, 100) < chance then
-        local enemy = Character("enemy_ghost", free_spots[random_spot].x, free_spots[random_spot].y)
-        table.insert(enemy_party.members, enemy)
+        local enemy = Enemies.Ghost(free_spots[random_spot].x, free_spots[random_spot].y)
+        table.insert(members, enemy)
         extra_enemies = extra_enemies + 1
       end
     end
   end
 
-  self.enemy_parties[on_scale] = enemy_party
+  self.enemy_parties[on_scale] = Party(members)
 end
 
 function level:getActiveRegion()
@@ -334,12 +333,14 @@ function level:mousepressed(button)
     local from = (function()
       for _, character in ipairs(self.hero_party.members) do
         if character.sprite == "hero_bob" then
-          return
-              character
+          return character
         end
       end
     end)()
     local to = (function() for _, enemy in ipairs(self.enemy_parties[_G.TILE_SCALE].members) do return enemy end end)()
+
+    logger:debug(to)
+    logger:debug(#self.enemy_parties[_G.TILE_SCALE].members)
 
     if from == nil or to == nil then
       return
@@ -362,6 +363,8 @@ end
 ---@overload fun(wait: nil, from: Character, to: Character, attack_id: string)
 function level:wait_attack(wait, from, to, attack_id)
   if self.ongoing_action then return end
+
+  logger:debug(to.hp)
 
   self.ongoing_action = true
 
@@ -395,23 +398,25 @@ function level:wait_attack(wait, from, to, attack_id)
 
     if _to_signals['die'] ~= nil then
       logger:debug_action(to.sprite, "emits signal", "die")
+
       wait(to_time)
+
       if to.isEnemy then
-        table.remove(self.enemy_parties[_G.TILE_SCALE].members, to.id --[[@as number]])
-        print(to.id, self.enemy_parties[_G.TILE_SCALE].members[1])
+        self.enemy_parties[_G.TILE_SCALE]:removeMember(to)
       else
-        self.hero_party.members[to.id] = nil
+        self.hero_party:removeMember(to)
       end
 
       break
     end
-    self.ongoing_action = false
   end
 
   -- wait for the rest of the time. even if all the key points of the animation already happened,
   -- there might be some time left to wait before the full animation is completely over.
   local time_after_signals = total - signals_time_acumulator
   wait(time_after_signals)
+
+  self.ongoing_action = false
 end
 
 level.__index = level

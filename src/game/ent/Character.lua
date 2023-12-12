@@ -162,7 +162,7 @@ function Character:doAction(action, data)
     else
       local hpAfter = self.hp - data.damage
 
-      if hpAfter <= 0 then
+      if hpAfter < 1 then
         for k, tween in ipairs(self.animations['die'].tweens) do
           anim.tweens[k] = tween
         end
