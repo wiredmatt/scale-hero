@@ -69,10 +69,12 @@ function level:setup()
 
   self.enemy_parties = {
     [_G.INITIAL_TILE_SCALE] = Party({
+      Enemies.Ghost(0, 16),
       Enemies.Cacti(16, 0),
       Enemies.Ghost(32, 0),
     }),
-    [16] = Party({}),
+    [16] = Party({
+    }),
     [12] = Party({}),
     [9] = Party({}),
     [8] = Party({}),
@@ -364,23 +366,11 @@ end
 function level:wait_attack(wait, from, to, attack_id)
   if self.ongoing_action then return end
 
-  logger:debug(to.hp)
-
   self.ongoing_action = true
 
   local attack = attacks[attack_id]
 
-  local axis = 'x'
-
-  if from.x ~= to.x then
-    axis = 'x'
-  end
-
-  if from.y ~= to.y then
-    axis = 'y'
-  end
-
-  local total, signals = from:doAction(ActionAnimation.hit_right)
+  local total, signals = from:doAction(attack.get_animation(from, to))
   local signals_time_acumulator = 0
 
   for signal, time in pairs(signals) do
@@ -389,6 +379,16 @@ function level:wait_attack(wait, from, to, attack_id)
     signals_time_acumulator = signals_time_acumulator + time
 
     wait(time)
+
+    local axis = 'x'
+
+    if math.floor(from.x) ~= math.floor(to.x) then
+      axis = 'x'
+    end
+
+    if math.floor(from.y) ~= math.floor(to.y) then
+      axis = 'y'
+    end
 
     local to_action = signaleffects[signal](axis)
     logger:debug_action(to.sprite, "does action", to_action)

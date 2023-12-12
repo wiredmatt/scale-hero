@@ -1,11 +1,12 @@
-local Base      = require "src.game.ent.Base"
-local TweenAnim = require "src.game.ent.TweenAnim"
-local logger    = require "src.tool.logger"
+local Base       = require "src.game.ent.Base"
+local TweenAnim  = require "src.game.ent.TweenAnim"
+local logger     = require "src.tool.logger"
+local Animations = require "src.game.animationkeys"
 
 ---@class Character : Base
 ---@field super Base
 ---@overload fun(sprite: string, x: number, y: number)
-local Character = Base:extend()
+local Character  = Base:extend()
 
 ---@param x number
 ---@param y number
@@ -45,7 +46,7 @@ function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range
 
 
     --- [[ EFFECT ANIMATIONS ]]
-    ["get_hit_x"] = TweenAnim(
+    [Animations.get_hit_x] = TweenAnim(
       AnimationType.once,
       { t = self.color, duration = 0.1, value = { r = 1, g = 0, b = 0, a = 1 } },
       { t = self.color, duration = 0.25, value = { r = 1, g = 1, b = 1, a = 1 } },
@@ -57,12 +58,12 @@ function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range
       { t = self, duration = 0.05, value = { x = self.x + 0.35 } },
       { t = self.color, duration = 0.1, value = { r = 1, g = 0, b = 0, a = 1 } },
       { t = self.color, duration = 0.25, value = { r = 1, g = 0, b = 0, a = 1 } },
+      { t = self.color, duration = 0.25, value = { r = 1, g = 1, b = 1, a = 1 } },
       { t = self, duration = 0.05, value = { x = self.x - 0.35 } },
       { t = self, duration = 0.05, value = { x = self.x + 0.35 } },
-      { t = self, duration = 0, value = { x = self.x } },
-      { t = self.color, duration = 0, value = { r = 1, g = 1, b = 1, a = 1 } }
+      { t = self, duration = 0, value = { x = self.x } }
     ),
-    ["get_hit_y"] = TweenAnim(
+    [Animations.get_hit_y] = TweenAnim(
       AnimationType.once,
 
       { t = self, duration = 0.05, value = { y = self.y - 0.35 } },
@@ -71,12 +72,14 @@ function Character:new(sprite, x, y, default_animation, hp, atk_melee, atk_range
       { t = self, duration = 0.05, value = { y = self.y + 0.35 } },
       { t = self, duration = 0.05, value = { y = self.y - 0.35 } },
       { t = self, duration = 0.05, value = { y = self.y + 0.35 } },
+      { t = self.color, duration = 0.1, value = { r = 1, g = 0, b = 0, a = 1 } },
+      { t = self.color, duration = 0.25, value = { r = 1, g = 0, b = 0, a = 1 } },
+      { t = self.color, duration = 0.25, value = { r = 1, g = 1, b = 1, a = 1 } },
       { t = self, duration = 0.05, value = { y = self.y - 0.35 } },
       { t = self, duration = 0.05, value = { y = self.y + 0.35 } },
-
       { t = self, duration = 0, value = { y = self.y } }
     ),
-    ["die"] = TweenAnim(
+    [Animations.die] = TweenAnim(
       AnimationType.once,
       { t = self, duration = 0, value = { hp = 0 } },
       { t = self, duration = 1, value = { sy = self.sy * 2, sx = self.sx * 2, x = self.x - 2, y = self.y - 2 } },

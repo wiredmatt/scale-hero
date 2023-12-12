@@ -11,7 +11,7 @@ EnemyGhost:implement(WithMelee)
 ---@param x number
 ---@param y number
 function EnemyGhost:new(x, y)
-    EnemyGhost.super.new(self, SpriteName.enemy_ghost, x, y, 10)
+    EnemyGhost.super.new(self, SpriteName.enemy_ghost, x, y, 20)
     self:applyMelee()
 end
 
