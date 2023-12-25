@@ -31,7 +31,8 @@ function Export()
 
 
   -- generates assets/main_atlas.xml
-  iffy.exportXML("main_atlas", "assets")
+  -- NOTE: Comment this line when making the build
+  -- iffy.exportXML("main_atlas", "assets")
 end
 
 function Load()
