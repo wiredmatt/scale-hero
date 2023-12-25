@@ -32,6 +32,8 @@ My unfinished and unsubmitted submission for [Game Off 2023](https://itch.io/jam
 
 https://www.youtube.com/watch?v=ThYaUONvkt8
 
+https://wiredmatt.github.io/scale-hero/
+
 ## What works
 
 - If you click the character will attack an enemy, in any direction.
